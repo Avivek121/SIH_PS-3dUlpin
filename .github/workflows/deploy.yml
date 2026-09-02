@@ -41,6 +41,7 @@ jobs:
           cd frontend
           npm run build
         env:
+          GITHUB_PAGES: 'true'
           VITE_API_URL: https://sih-ps-3dulpin.onrender.com/api/v1
 
       - name: Setup Pages
@@ -54,3 +55,4 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
