@@ -1,0 +1,53 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {"name": "Main Road", "type": "primary", "width": 12},
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [[85.8230, 20.2960], [85.8250, 20.2960], [85.8270, 20.2962], [85.8290, 20.2960], [85.8310, 20.2960]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {"name": "Saheed Nagar Rd", "type": "secondary", "width": 8},
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [[85.8248, 20.2945], [85.8248, 20.2960], [85.8248, 20.2975], [85.8250, 20.2990]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {"name": "Jaydev Vihar Rd", "type": "secondary", "width": 8},
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [[85.8265, 20.2950], [85.8270, 20.2962], [85.8275, 20.2975], [85.8268, 20.2990]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {"name": "CSP Road", "type": "primary", "width": 10},
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [[85.8285, 20.2950], [85.8290, 20.2960], [85.8295, 20.2970], [85.8290, 20.2985]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {"name": "Patia Link Rd", "type": "tertiary", "width": 6},
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [[85.8240, 20.2980], [85.8255, 20.2982], [85.8270, 20.2985], [85.8280, 20.2988]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {"name": "Internal Road A", "type": "tertiary", "width": 4},
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [[85.8245, 20.2970], [85.8260, 20.2970], [85.8275, 20.2972]]
+      }
+    }
+  ]
+}

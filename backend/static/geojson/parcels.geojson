@@ -1,0 +1,95 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "parcel_id": "P001",
+        "ward": "W12",
+        "area": 2500,
+        "land_use": "residential",
+        "address": "Plot 12, Saheed Nagar",
+        "status": "active",
+        "ulpin_prefix": "OD-BBSR-W12-P001",
+        "fill_color": "#3b82f6",
+        "stroke_color": "#1d4ed8"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[85.8245, 20.2961], [85.8258, 20.2961], [85.8258, 20.2974], [85.8245, 20.2974], [85.8245, 20.2961]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "parcel_id": "P002",
+        "ward": "W12",
+        "area": 3200,
+        "land_use": "mixed",
+        "address": "Plot 45, Jaydev Vihar",
+        "status": "active",
+        "ulpin_prefix": "OD-BBSR-W12-P002",
+        "fill_color": "#8b5cf6",
+        "stroke_color": "#6d28d9"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[85.8265, 20.2965], [85.8280, 20.2965], [85.8280, 20.2978], [85.8265, 20.2978], [85.8265, 20.2965]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "parcel_id": "P003",
+        "ward": "W12",
+        "area": 1800,
+        "land_use": "residential",
+        "address": "Plot 8, Nayapalli",
+        "status": "active",
+        "ulpin_prefix": "OD-BBSR-W12-P003",
+        "fill_color": "#10b981",
+        "stroke_color": "#047857"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[85.8235, 20.2950], [85.8248, 20.2950], [85.8248, 20.2960], [85.8235, 20.2960], [85.8235, 20.2950]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "parcel_id": "P004",
+        "ward": "W12",
+        "area": 5000,
+        "land_use": "commercial",
+        "address": "Plot 22, Chandrasekharpur",
+        "status": "active",
+        "ulpin_prefix": "OD-BBSR-W12-P004",
+        "fill_color": "#f59e0b",
+        "stroke_color": "#d97706"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[85.8285, 20.2955], [85.8305, 20.2955], [85.8305, 20.2972], [85.8285, 20.2972], [85.8285, 20.2955]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "parcel_id": "P005",
+        "ward": "W12",
+        "area": 4200,
+        "land_use": "residential",
+        "address": "Plot 67, Patia",
+        "status": "active",
+        "ulpin_prefix": "OD-BBSR-W12-P005",
+        "fill_color": "#ec4899",
+        "stroke_color": "#be185d"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[85.8250, 20.2980], [85.8268, 20.2980], [85.8268, 20.2995], [85.8250, 20.2995], [85.8250, 20.2980]]]
+      }
+    }
+  ]
+}
