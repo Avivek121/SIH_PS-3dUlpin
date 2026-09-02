@@ -65,3 +65,4 @@ docker compose up -d --build
 # 3. Build & serve frontend with Nginx or Caddy
 cd frontend && npm install && npm run build
 ```
+
