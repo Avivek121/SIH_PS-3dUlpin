@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, QrCode, CheckCircle2, AlertTriangle, Building2, 
   Map, HardDrive, Brain, FileDigit, ArrowRight, ShieldCheck, 
-  Sparkles, Clock, Bell, RefreshCw, Eye
+  Sparkles, Clock, Bell, RefreshCw, Eye, Plus
 } from 'lucide-react';
 import { dashboardApi } from '../api/dashboard';
 import { DashboardStats, Notification } from '../types';
@@ -142,9 +142,9 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
             { title: t('map3d'), desc: 'Interactive digital twin globe', icon: Map, path: '/map', color: 'text-blue-500' },
+            { title: '+ Add New Register', desc: 'Register new property to cadastral ledger', icon: Plus, path: '/registry?action=new', color: 'text-emerald-500' },
             { title: t('verticalExplorer'), desc: 'Exploded multi-floor building view', icon: Building2, path: '/explorer', color: 'text-purple-500' },
-            { title: t('generateUlpin'), desc: 'Synthesize 18-digit identifier', icon: FileDigit, path: '/generate-ulpin', color: 'text-emerald-500' },
-            { title: t('datasetManager'), desc: 'Ingest Drone & LiDAR surveys', icon: HardDrive, path: '/datasets', color: 'text-amber-500' },
+            { title: t('generateUlpin'), desc: 'Synthesize 18-digit identifier', icon: FileDigit, path: '/generate-ulpin', color: 'text-cyan-500' },
           ].map((action, i) => (
             <div
               key={i}
