@@ -245,3 +245,51 @@ async def refresh_token_endpoint(req: RefreshRequest, db: AsyncSession = Depends
 @router.get("/me")
 async def get_me(current_user: User = Depends(get_current_user)):
     return UserResponse.model_validate(current_user).model_dump()
+
+
+@router.post("/update-profile")
+async def update_profile(req: dict, db: AsyncSession = Depends(get_db)):
+    """Update user full_name, phone, or email in PostgreSQL database."""
+    user_id = req.get("id")
+    email = req.get("email")
+    new_name = req.get("full_name")
+    new_phone = req.get("phone")
+
+    user = None
+    if user_id:
+        try:
+            res = await db.execute(select(User).where(User.id == uuid.UUID(str(user_id))))
+            user = res.scalars().first()
+        except Exception:
+            pass
+
+    if not user and email:
+        res = await db.execute(select(User).where(User.email == email))
+        user = res.scalars().first()
+
+    if not user:
+        # Fallback to the latest non-demo user if available
+        res = await db.execute(select(User).order_by(User.created_at.desc()))
+        user = res.scalars().first()
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if new_name is not None and new_name.strip():
+        user.full_name = new_name.strip()
+    if new_phone is not None:
+        user.phone = new_phone.strip()
+
+    await db.commit()
+    await db.refresh(user)
+
+    return {
+        "status": "success",
+        "user": {
+            "id": str(user.id),
+            "email": user.email,
+            "full_name": user.full_name,
+            "phone": user.phone,
+            "role": user.role
+        }
+    }

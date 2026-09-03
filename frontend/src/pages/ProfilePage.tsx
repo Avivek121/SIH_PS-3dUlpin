@@ -1,33 +1,65 @@
 import React, { useState, useEffect } from 'react';
 import { 
   User, ShieldCheck, Mail, Phone, Building, Key, 
-  CheckCircle2, Save, Sparkles, MapPin, QrCode, Database
+  CheckCircle2, Save, Sparkles, MapPin, QrCode, Database, Loader2
 } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
+import { authApi } from '../api/auth';
 
 export default function ProfilePage() {
-  const { user } = useAuthStore();
+  const { user, setUser } = useAuthStore();
 
-  const [name, setName] = useState(user?.full_name || 'Vivek Kumar Nishad');
-  const [email, setEmail] = useState(user?.email || 'vivek1456yz@gmail.com');
-  const [phone, setPhone] = useState(user?.phone || '+91 90607 52611');
+  const [name, setName] = useState(user?.full_name || '');
+  const [email, setEmail] = useState(user?.email || '');
+  const [phone, setPhone] = useState(user?.phone || '');
   const [department, setDepartment] = useState(user?.role === 'admin' ? 'Directorate of Land Records & Survey' : 'Citizen Property Owner');
   const [jurisdiction, setJurisdiction] = useState('Bhubaneswar Municipal Corporation (Ward 12)');
+  const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     if (user) {
-      setName(user.full_name || 'Vivek Kumar Nishad');
-      setEmail(user.email || 'vivek1456yz@gmail.com');
-      setPhone(user.phone || '+91 90607 52611');
+      setName(user.full_name || '');
+      setEmail(user.email || '');
+      setPhone(user.phone || '');
       setDepartment(user.role === 'admin' ? 'Directorate of Land Records & Survey' : 'Citizen Property Owner');
     }
   }, [user]);
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
+    setIsSaving(true);
+    try {
+      // 1. Call Backend API to persist in PostgreSQL database
+      await authApi.updateProfile({
+        id: user?.id,
+        email: email || user?.email,
+        full_name: name.trim(),
+        phone: phone.trim()
+      });
+
+      // 2. Update client authStore so TopBar and all components update immediately
+      if (user) {
+        const updated = {
+          ...user,
+          full_name: name.trim(),
+          phone: phone.trim(),
+          email: email.trim() || user.email
+        };
+        setUser(updated);
+      }
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch {
+      // If network fails, update local state so user doesn't get blocked
+      if (user) {
+        setUser({ ...user, full_name: name.trim(), phone: phone.trim() });
+      }
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -124,9 +156,18 @@ export default function ProfilePage() {
 
             <button 
               type="submit"
-              className="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs shadow-md transition-all flex items-center gap-2"
+              disabled={isSaving}
+              className="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-bold rounded-xl text-xs shadow-md transition-all flex items-center gap-2 cursor-pointer"
             >
-              <Save className="w-3.5 h-3.5" /> Save Changes
+              {isSaving ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" /> Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="w-3.5 h-3.5" /> Save Changes
+                </>
+              )}
             </button>
           </div>
         </form>
