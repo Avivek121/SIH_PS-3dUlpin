@@ -42,13 +42,17 @@ export default function RegistryPage() {
   const [selectedCertItem, setSelectedCertItem] = useState<RegistryItem | null>(null);
 
   useEffect(() => {
-    if (querySearch) setSearch(querySearch);
-    loadLiveRegistry();
+    if (querySearch) {
+      setSearch(querySearch);
+      handleSearchChange(querySearch);
+    } else {
+      loadLiveRegistry('OD');
+    }
   }, [querySearch]);
 
-  const loadLiveRegistry = async () => {
+  const loadLiveRegistry = async (query = 'OD') => {
     try {
-      const res = await ulpinApi.searchULPIN('OD');
+      const res = await ulpinApi.searchULPIN(query);
       if (res && res.length > 0) {
         const liveItems: RegistryItem[] = res.map((r, idx) => ({
           ulpin: r.ulpin_code,
@@ -66,6 +70,35 @@ export default function RegistryPage() {
       }
     } catch {
       // Use rich fallback
+    }
+  };
+
+  const handleSearchChange = async (val: string) => {
+    setSearch(val);
+    const query = val.trim();
+    if (!query) {
+      loadLiveRegistry('OD');
+      return;
+    }
+    try {
+      const res = await ulpinApi.searchULPIN(query);
+      if (res && res.length > 0) {
+        const liveItems: RegistryItem[] = res.map((r, idx) => ({
+          ulpin: r.ulpin_code,
+          building: r.building_id ? `Building ${r.building_id}` : (DEFAULT_REGISTRY_ENTRIES[idx % DEFAULT_REGISTRY_ENTRIES.length].building),
+          buildingId: r.building_id || `B0${(idx % 8) + 1}`,
+          floor: r.floor_number || ((idx % 6) + 1),
+          unit: r.unit_number || `${((idx % 6) + 1)}0${(idx % 4) + 1}`,
+          type: r.property_type || 'Apartment Unit',
+          owner: r.owner_name || 'Registered Citizen',
+          area: typeof r.area === 'number' ? r.area : (100 + (idx * 15)),
+          status: (r.registration_status === 'registered' ? 'Registered' : r.registration_status === 'flagged' ? 'Flagged' : 'Pending') as any,
+          date: '2026-02-28'
+        }));
+        setEntries(liveItems);
+      }
+    } catch {
+      // Fallback to local filter
     }
   };
 
@@ -125,8 +158,8 @@ export default function RegistryPage() {
             type="text"
             placeholder="Search by ULPIN, Owner, or Building..."
             value={search}
-            onChange={e => setSearch(e.target.value)}
-            className="w-full bg-slate-950 border border-slate-700 rounded-xl pl-9 pr-3 py-1.5 text-xs text-white outline-none focus:border-blue-500"
+            onChange={e => handleSearchChange(e.target.value)}
+            className="w-full bg-slate-950 border border-slate-700 rounded-xl pl-9 pr-3 py-1.5 text-xs text-white outline-none focus:border-blue-500 font-mono"
           />
         </div>
       </div>
