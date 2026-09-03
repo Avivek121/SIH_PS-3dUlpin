@@ -250,46 +250,58 @@ export default function TopBar() {
 
         {/* Profile Dropdown Menu */}
         <div className="relative" ref={profileRef}>
-          <div 
-            onClick={() => setShowProfileMenu(!showProfileMenu)}
-            className="flex items-center gap-2.5 cursor-pointer p-1.5 rounded-xl hover:bg-slate-800 transition-colors"
-          >
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-xs font-bold shadow-md shadow-blue-500/20">
-              {user?.full_name ? user.full_name.charAt(0) : 'A'}
-            </div>
-            <div className="hidden sm:block text-left">
-              <div className="text-xs font-bold text-slate-200 leading-none">{user?.full_name || 'Authority User'}</div>
-              <div className="text-[10px] text-slate-400 mt-0.5 leading-none font-mono">{user?.role || 'Admin'}</div>
-            </div>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
-          </div>
+          {(() => {
+            const rawName = user?.full_name || '';
+            const isDemo = !rawName || rawName.toLowerCase().includes('demo');
+            const displayName = isDemo ? 'Municipal GIS Officer' : rawName;
+            const displayRole = user?.role === 'admin' ? 'Revenue Authority' : (isDemo ? 'Officer (Ward 12)' : (user?.role || 'Citizen'));
+            const displayEmail = (isDemo || !user?.email) ? 'officer.bbsr@ulpin3d.gov.in' : user.email;
 
-          {/* Menu Dropdown */}
-          {showProfileMenu && (
-            <div className="absolute right-0 mt-2 w-56 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-2 z-50 animate-in fade-in zoom-in duration-200 space-y-1 text-xs font-medium">
-              <div className="p-2 border-b border-slate-800 text-[11px] text-slate-400">
-                Signed in as <span className="font-bold text-white block truncate">{user?.email || 'officer.bbsr@ulpin3d.gov.in'}</span>
-              </div>
-              <button 
-                onClick={() => { setShowProfileMenu(false); navigate('/profile'); }}
-                className="w-full flex items-center gap-2.5 p-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
-              >
-                <User className="w-4 h-4 text-blue-400" /> My Officer Profile
-              </button>
-              <button 
-                onClick={() => { setShowProfileMenu(false); navigate('/settings'); }}
-                className="w-full flex items-center gap-2.5 p-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
-              >
-                <Settings className="w-4 h-4 text-purple-400" /> System Preferences
-              </button>
-              <button 
-                onClick={() => { logout(); navigate('/login'); }}
-                className="w-full flex items-center gap-2.5 p-2 rounded-xl text-red-400 hover:bg-red-500/10 transition-colors border-t border-slate-800/80 pt-2"
-              >
-                <LogOut className="w-4 h-4" /> Sign Out
-              </button>
-            </div>
-          )}
+            return (
+              <>
+                <div 
+                  onClick={() => setShowProfileMenu(!showProfileMenu)}
+                  className="flex items-center gap-2.5 cursor-pointer p-1.5 rounded-xl hover:bg-slate-800 transition-colors"
+                >
+                  <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-xs font-bold shadow-md shadow-blue-500/20">
+                    {displayName.charAt(0)}
+                  </div>
+                  <div className="hidden sm:block text-left">
+                    <div className="text-xs font-bold text-slate-200 leading-none">{displayName}</div>
+                    <div className="text-[10px] text-cyan-400 mt-0.5 leading-none font-mono">{displayRole}</div>
+                  </div>
+                  <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                </div>
+
+                {/* Menu Dropdown */}
+                {showProfileMenu && (
+                  <div className="absolute right-0 mt-2 w-56 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-2 z-50 animate-in fade-in zoom-in duration-200 space-y-1 text-xs font-medium">
+                    <div className="p-2 border-b border-slate-800 text-[11px] text-slate-400">
+                      Signed in as <span className="font-bold text-white block truncate">{displayEmail}</span>
+                    </div>
+                    <button 
+                      onClick={() => { setShowProfileMenu(false); navigate('/profile'); }}
+                      className="w-full flex items-center gap-2.5 p-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
+                    >
+                      <User className="w-4 h-4 text-blue-400" /> My Officer Profile
+                    </button>
+                    <button 
+                      onClick={() => { setShowProfileMenu(false); navigate('/settings'); }}
+                      className="w-full flex items-center gap-2.5 p-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
+                    >
+                      <Settings className="w-4 h-4 text-purple-400" /> System Preferences
+                    </button>
+                    <button 
+                      onClick={() => { logout(); navigate('/login'); }}
+                      className="w-full flex items-center gap-2.5 p-2 rounded-xl text-red-400 hover:bg-red-500/10 transition-colors border-t border-slate-800/80 pt-2 cursor-pointer"
+                    >
+                      <LogOut className="w-4 h-4" /> Sign Out
+                    </button>
+                  </div>
+                )}
+              </>
+            );
+          })()}
         </div>
       </div>
     </header>

@@ -1,16 +1,122 @@
-import React from 'react';
-import { Outlet } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import TopBar from './TopBar';
+import { ChevronLeft, ChevronRight, MapPin, Eye } from 'lucide-react';
+import bgGoogleEarth from '../../assets/bg-google-earth.jpg';
+import bgCityStadium from '../../assets/bg-city-stadium.jpg';
+import bgCityNova from '../../assets/bg-city-nova.jpg';
+import bgCityAerial from '../../assets/bg-city-aerial.jpg';
+import bgGisCadastral from '../../assets/bg-gis-cadastral.jpg';
+import heroBg from '../../assets/hero-bg.webp';
+
+const DASHBOARD_BACKGROUNDS = [
+  { url: bgGoogleEarth, name: 'Google Earth 3D Photogrammetry' },
+  { url: bgCityStadium, name: '3D City & Stadium Complex' },
+  { url: bgCityNova, name: 'Futuristic High-Rise Aerial (NOVA)' },
+  { url: bgGisCadastral, name: 'Bhubaneswar 3D GIS Cadastral' },
+  { url: bgCityAerial, name: 'Aerial Metropolis' },
+  { url: heroBg, name: 'LiDAR Drone Survey Grid' },
+];
 
 export default function DashboardLayout() {
+  const [bgIndex, setBgIndex] = useState(0);
+  const location = useLocation();
+
+  // Don't show the background image on 3D Map or LiDAR pages where WebGL canvas needs pure black
+  const isDedicated3DPage = location.pathname === '/map' || location.pathname === '/lidar';
+
+  // Auto-slide backgrounds every 8 seconds
+  useEffect(() => {
+    if (isDedicated3DPage) return;
+    const timer = setInterval(() => {
+      setBgIndex((prev) => (prev + 1) % DASHBOARD_BACKGROUNDS.length);
+    }, 8000);
+    return () => clearInterval(timer);
+  }, [isDedicated3DPage]);
+
+  const handlePrevBg = () => {
+    setBgIndex((prev) => (prev - 1 + DASHBOARD_BACKGROUNDS.length) % DASHBOARD_BACKGROUNDS.length);
+  };
+
+  const handleNextBg = () => {
+    setBgIndex((prev) => (prev + 1) % DASHBOARD_BACKGROUNDS.length);
+  };
+
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-slate-950 text-slate-100 font-sans">
-      <Sidebar />
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+    <div className="flex h-screen w-screen overflow-hidden bg-slate-950 text-slate-100 font-sans relative">
+      {/* ── Dynamic Sliding 3D City & Google Earth Background Carousel ── */}
+      {!isDedicated3DPage && (
+        <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
+          {DASHBOARD_BACKGROUNDS.map((bg, idx) => {
+            const offset = idx - bgIndex;
+            return (
+              <div
+                key={bg.name}
+                className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat transition-all duration-1000 ease-in-out"
+                style={{
+                  backgroundImage: `url(${bg.url})`,
+                  transform: `translateX(${offset * 100}%)`,
+                  opacity: Math.abs(offset) > 1 ? 0 : 0.45,
+                }}
+              />
+            );
+          })}
+          {/* Subtle Vignette & Atmospheric Contrast Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/75 via-slate-950/80 to-slate-950/90 backdrop-blur-[1.5px]" />
+        </div>
+      )}
+
+      {/* Sidebar */}
+      <div className="relative z-20 h-full">
+        <Sidebar />
+      </div>
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative z-10">
         <TopBar />
+        
         <main className="flex-1 overflow-y-auto relative custom-scrollbar">
           <Outlet />
+
+          {/* ── Floating Background Switcher Pill Controls (Bottom Right) ── */}
+          {!isDedicated3DPage && (
+            <div className="fixed bottom-4 right-6 z-40 flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/90 border border-slate-700/80 shadow-2xl backdrop-blur-xl text-xs font-mono">
+              <button
+                onClick={handlePrevBg}
+                title="Previous 3D Background"
+                className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded-full transition-colors cursor-pointer"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" />
+              </button>
+
+              <div className="flex items-center gap-1.5 text-[11px] text-cyan-300 font-semibold px-1">
+                <MapPin className="w-3 h-3 text-cyan-400" />
+                <span className="max-w-[160px] truncate">{DASHBOARD_BACKGROUNDS[bgIndex].name}</span>
+              </div>
+
+              <button
+                onClick={handleNextBg}
+                title="Next 3D Background"
+                className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded-full transition-colors cursor-pointer"
+              >
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+
+              {/* Dot Indicators */}
+              <div className="flex items-center gap-1 pl-1 border-l border-slate-700/80">
+                {DASHBOARD_BACKGROUNDS.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setBgIndex(i)}
+                    className={`h-1.5 rounded-full transition-all cursor-pointer ${
+                      bgIndex === i ? 'w-4 bg-cyan-400' : 'w-1.5 bg-slate-600 hover:bg-slate-400'
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
         </main>
       </div>
     </div>
