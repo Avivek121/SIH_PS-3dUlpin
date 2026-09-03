@@ -1,19 +1,29 @@
-import React, { useState } from 'react';
-import { useNavigate, Link, useSearchParams } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { authApi } from '../api/auth';
-import { Smartphone, ShieldCheck, User } from 'lucide-react';
+import { Smartphone, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import userAvatar from '../assets/user-avatar.png';
+import bgCityStadium from '../assets/bg-city-stadium.jpg';
+import bgGoogleEarth from '../assets/bg-google-earth.jpg';
+import bgCityNova from '../assets/bg-city-nova.jpg';
+import bgCityAerial from '../assets/bg-city-aerial.jpg';
 import heroBg from '../assets/hero-bg.webp';
 import PhoneOTP from '../components/auth/PhoneOTP';
 
-export default function LoginPage() {
-  const [searchParams] = useSearchParams();
-  const initialRole = searchParams.get('role') === 'admin' ? 'officer' : 'user';
+const backgrounds = [
+  { url: bgCityStadium, name: '3D City & Stadium Complex' },
+  { url: bgGoogleEarth, name: 'Google Earth 3D Photogrammetry' },
+  { url: bgCityNova, name: 'Futuristic High-Rise Aerial' },
+  { url: bgCityAerial, name: 'Aerial Metropolis' },
+  { url: heroBg, name: '3D Drone Survey Grid' },
+];
 
-  const [role, setRole] = useState<'user' | 'officer'>(initialRole);
-  const [email, setEmail] = useState(initialRole === 'officer' ? 'officer.bbsr@ulpin3d.gov.in' : '');
-  const [password, setPassword] = useState(initialRole === 'officer' ? 'admin123' : '');
+export default function LoginPage() {
+  const [bgIndex, setBgIndex] = useState(0);
+  // Clean inputs: NO demo credentials pre-filled
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [focused, setFocused] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -22,49 +32,55 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const { login } = useAuthStore();
 
-  const handleRoleChange = (newRole: 'user' | 'officer') => {
-    setRole(newRole);
-    if (newRole === 'officer') {
-      setEmail('officer.bbsr@ulpin3d.gov.in');
-      setPassword('admin123');
-    } else {
-      setEmail('');
-      setPassword('');
-    }
+  // Auto-cycle sliding backgrounds
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setBgIndex((prev) => (prev + 1) % backgrounds.length);
+    }, 7000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const handlePrevBg = () => {
+    setBgIndex((prev) => (prev - 1 + backgrounds.length) % backgrounds.length);
+  };
+
+  const handleNextBg = () => {
+    setBgIndex((prev) => (prev + 1) % backgrounds.length);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    const cleanEmail = email.trim();
+    const cleanPass = password.trim();
+
+    if (!cleanEmail || !cleanPass) {
+      setError('Please enter your email or phone and password.');
+      return;
+    }
+
     setLoading(true);
 
-    const loginEmail = email.trim() || (role === 'officer' ? 'officer.bbsr@ulpin3d.gov.in' : 'user@ulpin3d.gov.in');
-    const loginPass = password || 'admin123';
-
     try {
-      const data = await authApi.login(loginEmail, loginPass);
-      login(
-        data.user || {
-          id: role === 'officer' ? 'officer-id' : 'user-id',
-          email: loginEmail,
-          full_name: role === 'officer' ? 'Dr. Alok Mohanty (Officer)' : 'Registered Citizen',
-          role: role === 'officer' ? 'admin' : 'user',
-        },
-        data.access_token
-      );
-      navigate('/dashboard');
-    } catch {
-      // Offline / fallback login
-      login(
-        {
-          id: role === 'officer' ? 'officer-id' : 'user-id',
-          email: loginEmail,
-          full_name: role === 'officer' ? 'Dr. Alok Mohanty (Officer)' : 'Registered Citizen',
-          role: role === 'officer' ? 'admin' : 'user',
-        },
-        'gov-access-token-01'
-      );
-      navigate('/dashboard');
+      const data = await authApi.login(cleanEmail, cleanPass);
+      if (data && data.access_token) {
+        const userObj = data.user || {
+          id: 'user-id',
+          email: cleanEmail,
+          full_name: cleanEmail.split('@')[0],
+          role: 'user' as const,
+          is_active: true
+        };
+        login(userObj, data.access_token);
+        navigate('/dashboard');
+      } else {
+        throw new Error('Authentication failed');
+      }
+    } catch (err: any) {
+      // Strictly prevent access without valid credentials
+      const errMsg = err?.response?.data?.detail || 'Invalid email or password. Please check your credentials or register a new account.';
+      setError(errMsg);
     } finally {
       setLoading(false);
     }
@@ -72,16 +88,22 @@ export default function LoginPage() {
 
   const handleGoogleLogin = async () => {
     setLoading(true);
+    setError(null);
     try {
       const data = await authApi.googleAuth();
-      login(data.user || { id: 'google-user-id', email: 'user@gmail.com', full_name: 'Google User', role: 'user' }, data.access_token);
-      navigate('/dashboard');
-    } catch {
-      login(
-        { id: 'google-user-id', email: 'user@gmail.com', full_name: 'Google User', role: 'user' },
-        'google-demo-token'
-      );
-      navigate('/dashboard');
+      if (data && data.access_token) {
+        const userObj = data.user || {
+          id: 'google-user-id',
+          email: 'user@gmail.com',
+          full_name: 'Google User',
+          role: 'user' as const,
+          is_active: true
+        };
+        login(userObj, data.access_token);
+        navigate('/dashboard');
+      }
+    } catch (err: any) {
+      setError('Google Sign-In requires active OAuth configuration.');
     } finally {
       setLoading(false);
     }
@@ -89,28 +111,68 @@ export default function LoginPage() {
 
   const handleAppleLogin = async () => {
     setLoading(true);
+    setError(null);
     try {
       const data = await authApi.appleAuth({ id_token: 'auth' });
-      login(data.user || { id: 'apple-user-id', email: 'user@apple.com', full_name: 'Apple User', role: 'user' }, data.access_token);
-      navigate('/dashboard');
-    } catch {
-      login(
-        { id: 'apple-user-id', email: 'user@apple.com', full_name: 'Apple User', role: 'user' },
-        'apple-demo-token'
-      );
-      navigate('/dashboard');
+      if (data && data.access_token) {
+        const userObj = data.user || {
+          id: 'apple-user-id',
+          email: 'user@apple.com',
+          full_name: 'Apple User',
+          role: 'user' as const,
+          is_active: true
+        };
+        login(userObj, data.access_token);
+        navigate('/dashboard');
+      }
+    } catch (err: any) {
+      setError('Apple Sign-In requires active Apple Developer credentials.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div
-      className="relative flex h-screen w-screen overflow-hidden items-center justify-center bg-cover bg-center bg-no-repeat px-4 select-none font-sans"
-      style={{ backgroundImage: `url(${heroBg})` }}
-    >
+    <div className="relative flex h-screen w-screen overflow-hidden items-center justify-center font-sans select-none bg-slate-950">
+      {/* ── True Horizontal Sliding Background Carousel ── */}
+      <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none">
+        {backgrounds.map((bg, idx) => {
+          const offset = idx - bgIndex;
+          return (
+            <div
+              key={bg.name}
+              className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat transition-all duration-700 ease-in-out"
+              style={{
+                backgroundImage: `url(${bg.url})`,
+                transform: `translateX(${offset * 100}%)`,
+                opacity: Math.abs(offset) > 1 ? 0 : 1,
+              }}
+            />
+          );
+        })}
+      </div>
+
       {/* Blurred atmospheric overlay */}
-      <div className="absolute inset-0 bg-black/55 backdrop-blur-[1px] pointer-events-none" />
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-[1px] pointer-events-none" />
+
+      {/* ── Left / Right Background Sliding Arrow Buttons ── */}
+      <button
+        type="button"
+        onClick={handlePrevBg}
+        aria-label="Previous background"
+        className="absolute left-6 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-black/50 hover:bg-black/80 border border-white/20 text-white backdrop-blur-md transition-all hover:scale-110 active:scale-95 cursor-pointer hidden sm:flex items-center justify-center shadow-2xl"
+      >
+        <ChevronLeft className="w-5 h-5" />
+      </button>
+
+      <button
+        type="button"
+        onClick={handleNextBg}
+        aria-label="Next background"
+        className="absolute right-6 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-black/50 hover:bg-black/80 border border-white/20 text-white backdrop-blur-md transition-all hover:scale-110 active:scale-95 cursor-pointer hidden sm:flex items-center justify-center shadow-2xl"
+      >
+        <ChevronRight className="w-5 h-5" />
+      </button>
 
       {/* ── Animated Falling Scan Points ── */}
       <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
@@ -186,12 +248,12 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* ── Main Centered Glass Card (No Vertical Scroll) ── */}
+      {/* ── Main Centered Frosted Glass Card (Strictly Zero-Scroll) ── */}
       <div className="card relative z-10 w-full max-w-sm sm:max-w-md overflow-hidden rounded-3xl border border-white/10 bg-white/10 shadow-2xl backdrop-blur-xl">
         {/* Top gradient bar */}
         <div className="h-1 w-full bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-600" />
 
-        <div className="p-5 sm:p-7">
+        <div className="p-6 sm:p-7">
           {/* Avatar with glow */}
           <div className="mb-3 flex justify-center">
             <div className="avatar-ring rounded-full bg-gradient-to-br from-blue-500 to-cyan-400 p-[2.5px]">
@@ -203,47 +265,23 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <h1 className="mb-0.5 text-center text-2xl sm:text-3xl font-bold text-white tracking-tight">
+          <h1 className="mb-1 text-center text-2xl sm:text-3xl font-bold text-white tracking-tight">
             Welcome Back
           </h1>
-          <p className="mb-4 text-center text-xs text-gray-400">
-            Sign in to continue to 3D-ULPIN
+          <p className="mb-5 text-center text-xs text-gray-300">
+            Sign in to your authenticated 3D-ULPIN account
           </p>
 
-          {/* Role Switcher Tabs (Citizen / Officer) */}
-          <div className="mb-4 p-1 rounded-xl bg-slate-900/80 border border-white/10 flex items-center gap-1 text-xs">
-            <button
-              type="button"
-              onClick={() => handleRoleChange('user')}
-              className={`flex-1 py-1.5 rounded-lg font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                role === 'user'
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-500/25'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              <User className="w-3.5 h-3.5" /> Citizen Login
-            </button>
-            <button
-              type="button"
-              onClick={() => handleRoleChange('officer')}
-              className={`flex-1 py-1.5 rounded-lg font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                role === 'officer'
-                  ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-500/25'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-300" /> Officer Portal
-            </button>
-          </div>
-
+          {/* Error Message Box */}
           {error && (
-            <div className="mb-3 p-2 bg-red-950/60 border border-red-500/40 rounded-xl text-xs text-red-300 text-center">
-              {error}
+            <div className="mb-4 p-3 bg-red-950/70 border border-red-500/50 rounded-xl text-xs text-red-300 flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+              <span>{error}</span>
             </div>
           )}
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-3">
+          <form onSubmit={handleSubmit} className="space-y-3.5">
             <div className="group relative">
               <label
                 className={`absolute left-4 transition-all duration-200 pointer-events-none ${
@@ -252,7 +290,7 @@ export default function LoginPage() {
                     : 'top-3 text-gray-400 text-xs sm:text-sm'
                 }`}
               >
-                {role === 'officer' ? 'Official Government Email' : 'Email or Phone'}
+                Email or Phone
               </label>
               <input
                 type="text"
@@ -261,6 +299,7 @@ export default function LoginPage() {
                 onFocus={() => setFocused('email')}
                 onBlur={() => setFocused('')}
                 required
+                autoComplete="email"
                 className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-white outline-none transition-all duration-300 focus:border-blue-500 focus:bg-white/10 focus:shadow-[0_0_15px_rgba(59,130,246,0.15)] text-sm"
               />
             </div>
@@ -282,6 +321,7 @@ export default function LoginPage() {
                 onFocus={() => setFocused('password')}
                 onBlur={() => setFocused('')}
                 required
+                autoComplete="current-password"
                 className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-white outline-none transition-all duration-300 focus:border-blue-500 focus:bg-white/10 focus:shadow-[0_0_15px_rgba(59,130,246,0.15)] text-sm"
               />
             </div>
@@ -299,24 +339,20 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className={`btn-glow w-full rounded-xl py-2.5 text-sm sm:text-base font-semibold text-white transition-all duration-300 active:scale-[0.98] cursor-pointer mt-1 ${
-                role === 'officer'
-                  ? 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:shadow-[0_0_25px_rgba(16,185,129,0.4)]'
-                  : 'bg-gradient-to-r from-blue-600 to-cyan-500 hover:shadow-[0_0_25px_rgba(59,130,246,0.4)]'
-              }`}
+              className="btn-glow w-full rounded-xl py-2.5 text-sm sm:text-base font-semibold text-white bg-gradient-to-r from-blue-600 to-cyan-500 hover:shadow-[0_0_25px_rgba(59,130,246,0.4)] transition-all duration-300 active:scale-[0.98] cursor-pointer mt-1"
             >
-              {loading ? 'Authenticating...' : role === 'officer' ? 'Sign In as Officer' : 'Login'}
+              {loading ? 'Authenticating...' : 'Sign In'}
             </button>
           </form>
 
           {/* Divider */}
-          <div className="my-3 flex items-center gap-4">
+          <div className="my-3.5 flex items-center gap-4">
             <span className="h-px flex-1 bg-white/15" />
-            <span className="text-[11px] text-gray-500">or continue with</span>
+            <span className="text-[11px] text-gray-400">or continue with</span>
             <span className="h-px flex-1 bg-white/15" />
           </div>
 
-          {/* Social & Alternative Login Options Grid */}
+          {/* Alternative Auth Grid */}
           <div className="grid grid-cols-3 gap-2">
             <button
               type="button"
@@ -360,7 +396,7 @@ export default function LoginPage() {
           </div>
 
           {/* Footer Links */}
-          <p className="mt-3.5 text-center text-xs text-gray-400">
+          <p className="mt-4 text-center text-xs text-gray-400">
             Don't have an account?{' '}
             <Link to="/register" className="font-semibold text-blue-400 hover:text-blue-300 transition">
               Sign Up
@@ -386,9 +422,11 @@ export default function LoginPage() {
             </button>
             <PhoneOTP 
               onSuccess={(token, u) => {
-                login(u || { id: 'phone-user-id', phone: '+919876543210', full_name: 'Verified Officer', role: 'user' }, token);
-                setShowPhoneModal(false);
-                navigate('/dashboard');
+                if (u && token) {
+                  login(u, token);
+                  setShowPhoneModal(false);
+                  navigate('/dashboard');
+                }
               }} 
             />
           </div>
