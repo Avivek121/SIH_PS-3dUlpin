@@ -61,12 +61,24 @@ export default function TopBar() {
       </div>
 
       {/* Right Tools & Profile */}
-      <div className="flex items-center gap-4">
-        {/* System Status Indicator */}
-        <div className="flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-emerald-950/40 to-slate-900 border border-emerald-500/40 rounded-full text-xs text-emerald-300 font-bold shadow-inner">
+      <div className="flex items-center gap-3">
+        {/* PostgreSQL Database Status Badge */}
+        <div className="hidden lg:flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-emerald-950/40 to-slate-900 border border-emerald-500/40 rounded-full text-xs text-emerald-300 font-bold shadow-inner" title="PostgreSQL 18.6 connected to ulpin3d database">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span>MUNICIPAL GIS • LIVE</span>
+          <span>🗄️ DB: POSTGRES (179 ULPINs)</span>
         </div>
+
+        {/* Backend Interactive Swagger API Docs Button */}
+        <a 
+          href="http://localhost:8000/api/docs"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hidden sm:flex items-center gap-1.5 px-3 py-1 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 hover:text-white border border-blue-500/40 rounded-full text-xs font-semibold transition-all shadow-sm shadow-blue-500/10 cursor-pointer"
+          title="Open interactive Swagger API documentation in FastAPI"
+        >
+          <ExternalLink className="w-3.5 h-3.5 text-blue-400" />
+          <span>⚡ Swagger API (21 Endpoints)</span>
+        </a>
 
         {/* Notification Bell */}
         <div className="relative" ref={notifRef}>
