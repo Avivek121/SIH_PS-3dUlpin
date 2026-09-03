@@ -1,19 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   User, ShieldCheck, Mail, Phone, Building, Key, 
-  CheckCircle2, Save, Sparkles, MapPin, QrCode
+  CheckCircle2, Save, Sparkles, MapPin, QrCode, Database
 } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 
 export default function ProfilePage() {
   const { user } = useAuthStore();
 
-  const [name, setName] = useState(user?.full_name || 'Dr. Alok Mohanty');
-  const [email, setEmail] = useState(user?.email || 'officer.bbsr@ulpin3d.gov.in');
-  const [phone, setPhone] = useState(user?.phone || '+91 98765 43210');
-  const [department, setDepartment] = useState('Directorate of Land Records & Survey');
+  const [name, setName] = useState(user?.full_name || 'Vivek Kumar Nishad');
+  const [email, setEmail] = useState(user?.email || 'vivek1456yz@gmail.com');
+  const [phone, setPhone] = useState(user?.phone || '+91 90607 52611');
+  const [department, setDepartment] = useState(user?.role === 'admin' ? 'Directorate of Land Records & Survey' : 'Citizen Property Owner');
   const [jurisdiction, setJurisdiction] = useState('Bhubaneswar Municipal Corporation (Ward 12)');
   const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      setName(user.full_name || 'Vivek Kumar Nishad');
+      setEmail(user.email || 'vivek1456yz@gmail.com');
+      setPhone(user.phone || '+91 90607 52611');
+      setDepartment(user.role === 'admin' ? 'Directorate of Land Records & Survey' : 'Citizen Property Owner');
+    }
+  }, [user]);
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,11 +35,11 @@ export default function ProfilePage() {
       {/* Header */}
       <div className="border-b border-slate-800 pb-6">
         <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-blue-400 mb-1">
-          <User className="w-4 h-4" /> Cadastral Officer Credentials
+          <User className="w-4 h-4" /> Account Credentials & Database Record
         </div>
-        <h1 className="text-3xl font-extrabold text-white">Officer Profile & Security</h1>
+        <h1 className="text-3xl font-extrabold text-white">Profile & Credentials</h1>
         <p className="text-slate-400 text-sm mt-1">
-          Manage your spatial surveyor credentials, cryptographic signing keys, and municipal authority roles.
+          Verified PostgreSQL account record for LIMITS 3D Vertical Cadastral System.
         </p>
       </div>
 
@@ -44,11 +53,14 @@ export default function ProfilePage() {
             <div className="flex items-center justify-center sm:justify-start gap-2">
               <h2 className="text-xl font-bold text-white">{name}</h2>
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                VERIFIED OFFICER
+                {user?.role === 'admin' ? 'VERIFIED ADMIN / OFFICER' : 'REGISTERED CITIZEN'}
               </span>
             </div>
             <p className="text-xs text-blue-400 font-semibold">{department}</p>
-            <p className="text-xs text-slate-400">{jurisdiction}</p>
+            <p className="text-xs text-slate-400 flex items-center gap-2">
+              <Database className="w-3.5 h-3.5 text-emerald-400" />
+              <span>PostgreSQL Database ID: <strong className="font-mono text-cyan-300">{user?.id || 'Active'}</strong></span>
+            </p>
           </div>
         </div>
 

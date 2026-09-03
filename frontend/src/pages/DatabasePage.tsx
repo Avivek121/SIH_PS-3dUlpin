@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Database, Table, RefreshCw, Search, Download, ExternalLink, HardDrive, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
+import { Database, Table, RefreshCw, Search, Download, ExternalLink, HardDrive, ShieldCheck, CheckCircle2, UserCheck } from 'lucide-react';
 import { apiClient } from '../api/client';
 import { useThemeStore } from '../store/themeStore';
 
@@ -20,8 +21,10 @@ interface DatabaseOverview {
 
 export default function DatabasePage() {
   const { t, theme } = useThemeStore();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialTable = searchParams.get('table') || 'ulpins';
   const [overview, setOverview] = useState<DatabaseOverview | null>(null);
-  const [selectedTable, setSelectedTable] = useState<string>('ulpins');
+  const [selectedTable, setSelectedTable] = useState<string>(initialTable);
   const [tableData, setTableData] = useState<{ columns: string[]; rows: Record<string, any>[]; total_records: number } | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [tableLoading, setTableLoading] = useState<boolean>(false);
@@ -136,24 +139,32 @@ export default function DatabasePage() {
             { table_name: 'validation_records', row_count: 6 },
             { table_name: 'datasets', row_count: 4 },
             { table_name: 'users', row_count: 7 }
-          ]).map((tbl) => (
-            <button
-              key={tbl.table_name}
-              onClick={() => setSelectedTable(tbl.table_name)}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
-                selectedTable === tbl.table_name
-                  ? 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/25 scale-[1.02]'
-                  : 'bg-slate-900/90 text-slate-300 hover:bg-slate-800 hover:text-white border border-slate-800'
-              }`}
-            >
-              <span>{tbl.table_name}</span>
-              <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-mono ${
-                selectedTable === tbl.table_name ? 'bg-slate-950/40 text-slate-900 font-black' : 'bg-slate-800 text-slate-400'
-              }`}>
-                {tbl.row_count}
-              </span>
-            </button>
-          ))}
+          ]).map((tbl) => {
+            const isUsers = tbl.table_name === 'users';
+            const isSelected = selectedTable === tbl.table_name;
+            return (
+              <button
+                key={tbl.table_name}
+                onClick={() => {
+                  setSelectedTable(tbl.table_name);
+                  setSearchParams({ table: tbl.table_name });
+                }}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                  isSelected
+                    ? (isUsers ? 'bg-emerald-400 text-slate-950 shadow-lg shadow-emerald-400/30 scale-[1.03]' : 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/25 scale-[1.02]')
+                    : (isUsers ? 'bg-emerald-950/60 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-900/60' : 'bg-slate-900/90 text-slate-300 hover:bg-slate-800 hover:text-white border border-slate-800')
+                }`}
+              >
+                {isUsers && <UserCheck className="w-3.5 h-3.5 text-emerald-400" />}
+                <span>{isUsers ? 'users (Citizen Logins)' : tbl.table_name}</span>
+                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-mono ${
+                  isSelected ? 'bg-slate-950/40 text-slate-900 font-black' : 'bg-slate-800 text-slate-400'
+                }`}>
+                  {tbl.row_count}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
 

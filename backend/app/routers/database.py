@@ -58,8 +58,11 @@ async def get_table_data(
         cnt_res = await db.execute(text(f"SELECT count(*) FROM {table_name};"))
         total = cnt_res.scalar() or 0
 
-        # Get rows
-        stmt = text(f"SELECT * FROM {table_name} LIMIT {limit} OFFSET {offset};")
+        # Get rows (newest users first)
+        if table_name == "users":
+            stmt = text(f"SELECT * FROM users ORDER BY created_at DESC LIMIT {limit} OFFSET {offset};")
+        else:
+            stmt = text(f"SELECT * FROM {table_name} LIMIT {limit} OFFSET {offset};")
         res = await db.execute(stmt)
         columns = list(res.keys())
         rows = [dict(zip(columns, [str(v) if v is not None else None for v in row])) for row in res.fetchall()]
