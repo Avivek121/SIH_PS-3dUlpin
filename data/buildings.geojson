@@ -1,0 +1,141 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "building_id": "B01",
+        "parcel_id": "P001",
+        "height": 12,
+        "floor_count": 4,
+        "building_type": "residential",
+        "year": 2018,
+        "name": "Saheed Residency",
+        "color": "#60a5fa"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[85.8248, 20.2963], [85.8253, 20.2963], [85.8253, 20.2967], [85.8248, 20.2967], [85.8248, 20.2963]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "building_id": "B02",
+        "parcel_id": "P001",
+        "height": 18.5,
+        "floor_count": 6,
+        "building_type": "residential",
+        "year": 2020,
+        "name": "Nagar Heights",
+        "color": "#818cf8"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[85.8254, 20.2964], [85.8258, 20.2964], [85.8258, 20.2969], [85.8254, 20.2969], [85.8254, 20.2964]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "building_id": "B03",
+        "parcel_id": "P002",
+        "height": 24,
+        "floor_count": 8,
+        "building_type": "mixed",
+        "year": 2019,
+        "name": "Jaydev Tower",
+        "color": "#a78bfa"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[85.8268, 20.2968], [85.8274, 20.2968], [85.8274, 20.2974], [85.8268, 20.2974], [85.8268, 20.2968]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "building_id": "B04",
+        "parcel_id": "P002",
+        "height": 15,
+        "floor_count": 5,
+        "building_type": "commercial",
+        "year": 2021,
+        "name": "Vihar Commercial Complex",
+        "color": "#fbbf24"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[85.8275, 20.2967], [85.8279, 20.2967], [85.8279, 20.2972], [85.8275, 20.2972], [85.8275, 20.2967]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "building_id": "B05",
+        "parcel_id": "P003",
+        "height": 9,
+        "floor_count": 3,
+        "building_type": "residential",
+        "year": 2015,
+        "name": "Nayapalli Villa",
+        "color": "#34d399"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[85.8238, 20.2952], [85.8243, 20.2952], [85.8243, 20.2956], [85.8238, 20.2956], [85.8238, 20.2952]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "building_id": "B06",
+        "parcel_id": "P004",
+        "height": 30,
+        "floor_count": 10,
+        "building_type": "commercial",
+        "year": 2022,
+        "name": "CSP Business Center",
+        "color": "#f97316"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[85.8288, 20.2958], [85.8295, 20.2958], [85.8295, 20.2966], [85.8288, 20.2966], [85.8288, 20.2958]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "building_id": "B07",
+        "parcel_id": "P004",
+        "height": 21,
+        "floor_count": 7,
+        "building_type": "mixed",
+        "year": 2017,
+        "name": "CSP Mixed Use",
+        "color": "#fb7185"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[85.8296, 20.2959], [85.8302, 20.2959], [85.8302, 20.2965], [85.8296, 20.2965], [85.8296, 20.2959]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "building_id": "B08",
+        "parcel_id": "P005",
+        "height": 27,
+        "floor_count": 9,
+        "building_type": "residential",
+        "year": 2023,
+        "name": "Patia Premium Apartments",
+        "color": "#c084fc"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[85.8255, 20.2984], [85.8262, 20.2984], [85.8262, 20.2991], [85.8255, 20.2991], [85.8255, 20.2984]]]
+      }
+    }
+  ]
+}
