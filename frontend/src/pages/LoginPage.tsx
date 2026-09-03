@@ -67,12 +67,16 @@ export default function LoginPage() {
     try {
       const data = await authApi.login(cleanEmail, cleanPass);
       if (data && data.access_token) {
-        const userObj = data.user || {
-          id: 'user-id',
-          email: cleanEmail,
-          full_name: cleanEmail.split('@')[0],
-          role: 'user' as const,
-          is_active: true
+        const isOfficerEmail = cleanEmail.includes('officer') || cleanEmail.includes('admin');
+        const userObj = {
+          ...(data.user || {
+            id: 'user-id',
+            email: cleanEmail,
+            full_name: cleanEmail.split('@')[0],
+            role: isOfficerEmail ? 'admin' : 'user',
+            is_active: true
+          }),
+          role: isOfficerEmail ? 'admin' : (data.user?.role || 'user')
         };
         login(userObj, data.access_token);
         navigate('/dashboard');
@@ -270,9 +274,45 @@ export default function LoginPage() {
           <h1 className="mb-1 text-center text-2xl sm:text-3xl font-bold text-white tracking-tight">
             Welcome Back
           </h1>
-          <p className="mb-5 text-center text-xs text-gray-300">
+          <p className="mb-4 text-center text-xs text-gray-300">
             Sign in to your authenticated LIMITS GIS account
           </p>
+
+          {/* Quick Role Mode Selector (Officer with DB vs Citizen without DB) */}
+          <div className="mb-4 grid grid-cols-2 gap-2 p-1 bg-white/5 border border-white/10 rounded-2xl">
+            <button
+              type="button"
+              onClick={() => {
+                setEmail('officer.bbsr@ulpin3d.gov.in');
+                setPassword('admin123');
+                setError(null);
+              }}
+              className={`py-2 px-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                email.includes('officer') || email.includes('admin')
+                  ? 'bg-blue-600 text-white shadow-md'
+                  : 'text-gray-300 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <span>🏛️ Officer Login</span>
+              <span className="text-[9px] font-mono px-1 py-0.5 bg-blue-900/60 rounded text-blue-200">Has DB</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setEmail('vivek1456yz@gmail.com');
+                setPassword('admin123');
+                setError(null);
+              }}
+              className={`py-2 px-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                !email.includes('officer') && !email.includes('admin')
+                  ? 'bg-emerald-600 text-white shadow-md'
+                  : 'text-gray-300 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <span>👤 Citizen Login</span>
+              <span className="text-[9px] font-mono px-1 py-0.5 bg-emerald-900/60 rounded text-emerald-200">No DB</span>
+            </button>
+          </div>
 
           {/* Error Message Box */}
           {error && (

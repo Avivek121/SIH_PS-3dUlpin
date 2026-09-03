@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { 
   Settings, Globe, Sliders, Bell, Database, ShieldCheck, 
-  Save, CheckCircle2, Sparkles
+  Save, CheckCircle2, Sparkles, Moon, Sun
 } from 'lucide-react';
+import { useThemeStore, Language, ThemeMode } from '../store/themeStore';
 
 export default function SettingsPage() {
+  const { language, setLanguage, theme, toggleTheme, setTheme, t } = useThemeStore();
   const [crs, setCrs] = useState('EPSG:32645'); // UTM Zone 45N (Bhubaneswar)
   const [lod, setLod] = useState('LOD2');
   const [edlShading, setEdlShading] = useState(true);
@@ -23,15 +25,76 @@ export default function SettingsPage() {
       {/* Header */}
       <div className="border-b border-slate-800 pb-6">
         <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-blue-400 mb-1">
-          <Settings className="w-4 h-4" /> System Configuration
+          <Settings className="w-4 h-4" /> {t('settings')}
         </div>
-        <h1 className="text-3xl font-extrabold text-white">Platform Settings & GIS Preferences</h1>
+        <h1 className="text-3xl font-extrabold text-white">{t('settingsTitle')}</h1>
         <p className="text-slate-400 text-sm mt-1">
-          Configure spatial projection systems, 3D rendering tolerances, and automated AI discrepancy thresholds.
+          {t('settingsDesc')}
         </p>
       </div>
 
       <form onSubmit={handleSave} className="space-y-6">
+        {/* Language & Appearance Preference */}
+        <div className="p-6 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-xl space-y-4">
+          <h3 className="text-sm font-bold text-white flex items-center gap-2 border-b border-slate-800 pb-3">
+            <Globe className="w-4 h-4 text-cyan-400" /> {t('languagePreference')} & {t('themePreference')}
+          </h3>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+            <div>
+              <label className="block font-semibold text-slate-300 mb-1.5">{t('languagePreference')}</label>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { code: 'en', label: 'English', sub: 'EN' },
+                  { code: 'hi', label: 'हिन्दी', sub: 'HI' },
+                  { code: 'or', label: 'ଓଡ଼ିଆ', sub: 'OR' }
+                ].map((item) => (
+                  <button
+                    key={item.code}
+                    type="button"
+                    onClick={() => setLanguage(item.code as Language)}
+                    className={`p-2.5 rounded-xl border text-center transition-all cursor-pointer ${
+                      language === item.code
+                        ? 'bg-blue-600 border-blue-400 text-white font-bold shadow-md'
+                        : 'bg-slate-950 border-slate-800 text-slate-300 hover:bg-slate-800'
+                    }`}
+                  >
+                    <div className="text-xs font-bold">{item.label}</div>
+                    <div className="text-[10px] opacity-75 font-mono">{item.sub}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block font-semibold text-slate-300 mb-1.5">{t('themePreference')}</label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setTheme('dark')}
+                  className={`p-2.5 rounded-xl border text-center transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                    theme === 'dark'
+                      ? 'bg-blue-600 border-blue-400 text-white font-bold shadow-md'
+                      : 'bg-slate-950 border-slate-800 text-slate-300 hover:bg-slate-800'
+                  }`}
+                >
+                  <Moon className="w-4 h-4" /> {t('darkMode')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTheme('light')}
+                  className={`p-2.5 rounded-xl border text-center transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                    theme === 'light'
+                      ? 'bg-blue-600 border-blue-400 text-white font-bold shadow-md'
+                      : 'bg-slate-950 border-slate-800 text-slate-300 hover:bg-slate-800'
+                  }`}
+                >
+                  <Sun className="w-4 h-4" /> {t('lightMode')}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
         {/* Spatial & GIS Projection Settings */}
         <div className="p-6 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-xl space-y-4">
           <h3 className="text-sm font-bold text-white flex items-center gap-2 border-b border-slate-800 pb-3">

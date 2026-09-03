@@ -16,12 +16,13 @@ interface NavItemDef {
   name: string;
   path: string;
   icon: any;
+  officerOnly?: boolean;
 }
 
 const navItems: NavItemDef[] = [
   { key: 'home', name: 'Home', path: '/', icon: Home },
   { key: 'dashboard', name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-  { key: 'databaseExplorer', name: 'Database Explorer', path: '/database', icon: Database },
+  { key: 'databaseExplorer', name: 'Database Explorer', path: '/database', icon: Database, officerOnly: true },
   { key: 'map3d', name: '3D GIS Map', path: '/map', icon: Map },
   { key: 'verticalExplorer', name: 'Vertical Explorer', path: '/explorer', icon: Layers },
   { key: 'generateUlpin', name: 'Generate ULPIN', path: '/generate-ulpin', icon: FileDigit },
@@ -183,7 +184,9 @@ export default function Sidebar() {
       {/* Navigation Links */}
       <div className="flex-1 overflow-y-auto py-3 custom-scrollbar">
         <div className="space-y-1 px-2">
-          {navItems.map((item) => (
+          {(() => {
+            const isOfficer = user?.role === 'admin' || user?.role === 'officer' || user?.email?.includes('officer') || user?.email?.includes('admin');
+            return navItems.filter(item => !item.officerOnly || isOfficer).map((item) => (
             <NavLink
               key={item.name}
               to={item.path}
@@ -199,7 +202,8 @@ export default function Sidebar() {
               <item.icon className="w-4 h-4 flex-shrink-0" />
               {!collapsed && <span className="text-xs">{t(item.key)}</span>}
             </NavLink>
-          ))}
+          ));
+          })()}
         </div>
       </div>
 

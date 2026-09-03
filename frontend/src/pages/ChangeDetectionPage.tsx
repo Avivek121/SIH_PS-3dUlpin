@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { apiClient } from '../api/client';
+import { useThemeStore } from '../store/themeStore';
 
 interface ChangeItem {
   id: string;
@@ -91,6 +92,7 @@ const DEFAULT_CHANGES: ChangeItem[] = [
 ];
 
 export default function ChangeDetectionPage() {
+  const { t, theme } = useThemeStore();
   const [changes, setChanges] = useState<ChangeItem[]>(DEFAULT_CHANGES);
   const [filter, setFilter] = useState<'All' | 'Critical' | 'Pending' | 'Approved'>('All');
   const navigate = useNavigate();
@@ -122,16 +124,16 @@ export default function ChangeDetectionPage() {
         setChanges(formatted);
       }
     } catch {
-      // Use rich fallback
+      // Fallback
     }
   };
 
   const handleUpdateStatus = async (id: string, newStatus: 'Approved' | 'Notice Issued') => {
-    setChanges(prev => prev.map(c => c.id === id ? { ...c, status: newStatus } : c));
     try {
-      await apiClient.post(`/validation/changes/${id}/status?status=${newStatus.toLowerCase().replace(' ', '_')}`);
+      await apiClient.patch(`/validation/changes/${id}`, { status: newStatus.toLowerCase().replace(' ', '_') });
+      setChanges(prev => prev.map(c => c.id === id ? { ...c, status: newStatus } : c));
     } catch {
-      // Handled
+      setChanges(prev => prev.map(c => c.id === id ? { ...c, status: newStatus } : c));
     }
   };
 
@@ -149,28 +151,31 @@ export default function ChangeDetectionPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-6">
         <div>
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-blue-400 mb-1">
-            <Eye className="w-4 h-4" /> Multi-Temporal AI Analytics
+            <Eye className="w-4 h-4" /> {t('changeDetectionTitle')}
           </div>
-          <h1 className="text-3xl font-extrabold text-white">AI Temporal Change Detection</h1>
+          <h1 className="text-3xl font-extrabold text-white">{t('changeDetectionTitle')}</h1>
           <p className="text-slate-400 text-sm mt-1">
-            Automated detection of unauthorized vertical floor additions, rooftop structures, and setback encroachments over time.
+            {t('changeDetectionDesc')}
           </p>
         </div>
 
         <div className="flex gap-2">
-          {(['All', 'Critical', 'Pending', 'Approved'] as const).map(tab => (
-            <button
-              key={tab}
-              onClick={() => setFilter(tab)}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                filter === tab 
-                  ? 'bg-blue-600 text-white shadow-md' 
-                  : 'bg-slate-800 text-slate-400 hover:text-white'
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
+          {(['All', 'Critical', 'Pending', 'Approved'] as const).map(tab => {
+            const label = tab === 'All' ? t('allTab') : tab;
+            return (
+              <button
+                key={tab}
+                onClick={() => setFilter(tab)}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  filter === tab 
+                    ? 'bg-blue-600 text-white shadow-md' 
+                    : 'bg-slate-800 text-slate-400 hover:text-white'
+                }`}
+              >
+                {label}
+              </button>
+            );
+          })}
         </div>
       </div>
 

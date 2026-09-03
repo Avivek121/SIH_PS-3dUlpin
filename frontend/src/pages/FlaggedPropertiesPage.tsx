@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { apiClient } from '../api/client';
+import { useThemeStore } from '../store/themeStore';
 
 interface FlaggedItem {
   id: string;
@@ -26,6 +27,7 @@ const DEFAULT_FLAGGED_ITEMS: FlaggedItem[] = [
 ];
 
 export default function FlaggedPropertiesPage() {
+  const { t, theme } = useThemeStore();
   const [items, setItems] = useState<FlaggedItem[]>(DEFAULT_FLAGGED_ITEMS);
   const [filter, setFilter] = useState<'All' | 'Critical' | 'High' | 'Open'>('All');
   const [search, setSearch] = useState('');
@@ -37,41 +39,44 @@ export default function FlaggedPropertiesPage() {
 
   const loadFlagged = async () => {
     try {
-      const res = await apiClient.get('/validation/flagged');
+      const res = await apiClient.get('/validation/records?status=flagged');
       if (res.data && res.data.length > 0) {
         const formatted: FlaggedItem[] = res.data.map((r: any, idx: number) => ({
           id: r.id || `f-0${idx + 1}`,
-          ulpin: r.ulpin_code || (DEFAULT_FLAGGED_ITEMS[idx % DEFAULT_FLAGGED_ITEMS.length].ulpin),
-          property: `Building B0${(idx % 8) + 1} Complex`,
-          owner: 'Registered Violator',
-          issue: r.description || r.flag_type || 'Spatial Deviation Flagged',
-          severity: (r.severity === 'critical' ? 'Critical' : r.severity === 'high' ? 'High' : 'Moderate') as any,
+          ulpin: r.ulpin_id || DEFAULT_FLAGGED_ITEMS[idx % DEFAULT_FLAGGED_ITEMS.length].ulpin,
+          property: `Building B0${(idx % 8) + 1}`,
+          owner: r.owner_name || 'Owner Under Notice',
+          issue: r.violation_type || 'Setback Encroachment Detected',
+          severity: r.severity === 'critical' ? 'Critical' : r.severity === 'high' ? 'High' : 'Moderate',
           reportedDate: r.created_at ? r.created_at.split('T')[0] : '2026-02-28',
-          status: r.resolved ? 'Resolved' : 'Open',
-          actionNeeded: 'Regularization / Site Inspection'
+          status: (r.status === 'resolved' ? 'Resolved' : r.status === 'notice_issued' ? 'Notice Issued' : 'Open') as any,
+          actionNeeded: r.action_required || 'Regularization fee / Demolition notice'
         }));
         setItems(formatted);
       }
     } catch {
-      // Use rich fallback
+      // Fallback
     }
   };
 
   const handleResolve = async (id: string) => {
-    setItems(prev => prev.map(i => i.id === id ? { ...i, status: 'Resolved' } : i));
     try {
-      await apiClient.post(`/validation/flagged/${id}/resolve`);
+      await apiClient.patch(`/validation/records/${id}`, { status: 'resolved' });
+      setItems(prev => prev.map(item => item.id === id ? { ...item, status: 'Resolved' } : item));
     } catch {
-      // Handled
+      setItems(prev => prev.map(item => item.id === id ? { ...item, status: 'Resolved' } : item));
     }
   };
 
-  const filtered = items.filter(i => {
+  const filtered = items.filter(item => {
     const matchesFilter = filter === 'All' || 
-                          (filter === 'Open' ? i.status === 'Open' : i.severity === filter);
-    const matchesSearch = i.ulpin.toLowerCase().includes(search.toLowerCase()) || 
-                          i.property.toLowerCase().includes(search.toLowerCase()) ||
-                          i.owner.toLowerCase().includes(search.toLowerCase());
+                          (filter === 'Critical' && item.severity === 'Critical') ||
+                          (filter === 'High' && item.severity === 'High') ||
+                          (filter === 'Open' && item.status === 'Open');
+    const matchesSearch = item.ulpin.toLowerCase().includes(search.toLowerCase()) ||
+                          item.property.toLowerCase().includes(search.toLowerCase()) ||
+                          item.owner.toLowerCase().includes(search.toLowerCase()) ||
+                          item.issue.toLowerCase().includes(search.toLowerCase());
     return matchesFilter && matchesSearch;
   });
 
@@ -81,38 +86,41 @@ export default function FlaggedPropertiesPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-6">
         <div>
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-red-400 mb-1">
-            <AlertTriangle className="w-4 h-4" /> Cadastral Violation Tracker
+            <AlertTriangle className="w-4 h-4" /> {t('flaggedPropertiesTitle')}
           </div>
-          <h1 className="text-3xl font-extrabold text-white">Flagged Properties & Violations</h1>
+          <h1 className="text-3xl font-extrabold text-white">{t('flaggedPropertiesTitle')}</h1>
           <p className="text-slate-400 text-sm mt-1">
-            Encroachments, vertical height violations, and zone mismatches flagged by autonomous AI scans.
+            {t('flaggedPropertiesDesc')}
           </p>
         </div>
 
         <button 
           onClick={() => navigate('/validation')}
-          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-blue-500/25 transition-all self-start md:self-auto"
+          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-blue-500/25 transition-all self-start md:self-auto cursor-pointer"
         >
-          <ShieldAlert className="w-3.5 h-3.5" /> Run Spatial Audit
+          <ShieldAlert className="w-3.5 h-3.5" /> {t('revalidateAll')}
         </button>
       </div>
 
       {/* Filter and Search Bar */}
       <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-slate-900/80 p-4 rounded-2xl border border-slate-800">
         <div className="flex gap-2 w-full sm:w-auto">
-          {(['All', 'Critical', 'High', 'Open'] as const).map(tab => (
-            <button
-              key={tab}
-              onClick={() => setFilter(tab)}
-              className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                filter === tab 
-                  ? 'bg-red-600 text-white shadow-md' 
-                  : 'bg-slate-800 text-slate-400 hover:text-white'
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
+          {(['All', 'Critical', 'High', 'Open'] as const).map(tab => {
+            const label = tab === 'All' ? t('allTab') : tab;
+            return (
+              <button
+                key={tab}
+                onClick={() => setFilter(tab)}
+                className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  filter === tab 
+                    ? 'bg-red-600 text-white shadow-md' 
+                    : 'bg-slate-800 text-slate-400 hover:text-white'
+                }`}
+              >
+                {label}
+              </button>
+            );
+          })}
         </div>
 
         <div className="relative w-full sm:w-72">

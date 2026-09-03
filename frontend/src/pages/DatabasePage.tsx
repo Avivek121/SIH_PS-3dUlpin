@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Database, Table, RefreshCw, Search, Download, ExternalLink, HardDrive, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import { apiClient } from '../api/client';
+import { useThemeStore } from '../store/themeStore';
 
 interface TableInfo {
   table_name: string;
@@ -18,6 +19,7 @@ interface DatabaseOverview {
 }
 
 export default function DatabasePage() {
+  const { t, theme } = useThemeStore();
   const [overview, setOverview] = useState<DatabaseOverview | null>(null);
   const [selectedTable, setSelectedTable] = useState<string>('ulpins');
   const [tableData, setTableData] = useState<{ columns: string[]; rows: Record<string, any>[]; total_records: number } | null>(null);
@@ -76,10 +78,12 @@ export default function DatabasePage() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-black text-white tracking-tight">PostgreSQL 3D Database Explorer</h1>
+              <h1 className="text-2xl font-black text-white tracking-tight">
+                {t('databaseExplorerTitle')}
+              </h1>
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
               <span className="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-emerald-950/60 text-emerald-300 border border-emerald-500/40 font-bold">
-                {overview?.status || 'CONNECTED'}
+                {overview?.status || t('databaseConnected')}
               </span>
             </div>
             <div className="text-xs text-slate-400 mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[11px]">
@@ -101,7 +105,7 @@ export default function DatabasePage() {
             title="Refresh Database"
           >
             <RefreshCw className={`w-4 h-4 ${tableLoading ? 'animate-spin' : ''}`} />
-            <span>Refresh</span>
+            <span>{t('refreshBtn')}</span>
           </button>
           <a
             href="http://localhost:8000/api/docs"
@@ -119,7 +123,7 @@ export default function DatabasePage() {
       <div className="space-y-2">
         <label className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
           <Table className="w-4 h-4 text-cyan-400" />
-          <span>Select PostgreSQL Table to View Records</span>
+          <span>{t('selectDatabaseTable')}</span>
         </label>
         <div className="flex flex-wrap gap-2">
           {(overview?.tables || [
@@ -130,7 +134,8 @@ export default function DatabasePage() {
             { table_name: 'floors', row_count: 52 },
             { table_name: 'owners', row_count: 12 },
             { table_name: 'validation_records', row_count: 6 },
-            { table_name: 'datasets', row_count: 4 }
+            { table_name: 'datasets', row_count: 4 },
+            { table_name: 'users', row_count: 7 }
           ]).map((tbl) => (
             <button
               key={tbl.table_name}
@@ -158,10 +163,10 @@ export default function DatabasePage() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-2 border-b border-slate-800">
           <div className="flex items-center gap-3">
             <h2 className="text-lg font-bold text-white capitalize">
-              Table: <span className="text-cyan-400 font-mono">{selectedTable}</span>
+              {t('liveTableRecords')}: <span className="text-cyan-400 font-mono">{selectedTable}</span>
             </h2>
             <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
-              {tableData?.total_records || 0} Total Records in PostgreSQL
+              {tableData?.total_records || 0} {t('totalRecordsCount')}
             </span>
           </div>
 
@@ -169,7 +174,7 @@ export default function DatabasePage() {
             <Search className="w-4 h-4 text-slate-500 absolute left-3 top-2.5" />
             <input
               type="text"
-              placeholder="Search table rows..."
+              placeholder={t('searchRecordsPlaceholder')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full bg-slate-950/70 border border-slate-800 rounded-xl pl-9 pr-3 py-1.5 text-xs text-white placeholder-slate-500 outline-none focus:border-cyan-500"

@@ -201,15 +201,21 @@ export default function TopBar() {
 
       {/* Right Tools & Profile */}
       <div className="flex items-center gap-3">
-        {/* PostgreSQL Database Clickable Badge */}
-        <button
-          onClick={() => navigate('/database')}
-          className="hidden lg:flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-emerald-950/60 to-slate-900 hover:from-emerald-900/80 hover:to-slate-800 border border-emerald-500/40 rounded-full text-xs text-emerald-300 font-bold shadow-inner transition-all cursor-pointer"
-          title="Click to open PostgreSQL Database Explorer"
-        >
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span>🗄️ DB: POSTGRESQL (179 ULPINs)</span>
-        </button>
+        {/* PostgreSQL Database Clickable Badge (Officers Only) */}
+        {(() => {
+          const isOfficer = user?.role === 'admin' || user?.role === 'officer' || user?.email?.includes('officer') || user?.email?.includes('admin');
+          if (!isOfficer) return null;
+          return (
+            <button
+              onClick={() => navigate('/database')}
+              className="hidden lg:flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-emerald-950/60 to-slate-900 hover:from-emerald-900/80 hover:to-slate-800 border border-emerald-500/40 rounded-full text-xs text-emerald-300 font-bold shadow-inner transition-all cursor-pointer"
+              title="Click to open PostgreSQL Database Explorer"
+            >
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span>{t('postgresConnected')}</span>
+            </button>
+          );
+        })()}
 
         {/* Backend Interactive Swagger API Docs Button */}
         <a 

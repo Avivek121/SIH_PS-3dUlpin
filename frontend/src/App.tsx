@@ -31,6 +31,15 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+const OfficerRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user } = useAuthStore();
+  const isOfficer = user?.role === 'admin' || user?.role === 'officer' || user?.email?.includes('officer') || user?.email?.includes('admin');
+  if (!isOfficer) {
+    return <Navigate to="/dashboard" replace />;
+  }
+  return <>{children}</>;
+};
+
 function App() {
   return (
     <Routes>
@@ -55,7 +64,7 @@ function App() {
         <Route path="ar-vr" element={<ARVRViewerPage />} />
         <Route path="profile" element={<ProfilePage />} />
         <Route path="settings" element={<SettingsPage />} />
-        <Route path="database" element={<DatabasePage />} />
+        <Route path="database" element={<OfficerRoute><DatabasePage /></OfficerRoute>} />
       </Route>
       
       <Route path="*" element={<NotFoundPage />} />

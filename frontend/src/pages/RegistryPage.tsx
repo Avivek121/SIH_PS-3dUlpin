@@ -47,7 +47,7 @@ const BUILDING_NAMES: Record<string, string> = {
 export default function RegistryPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { theme } = useThemeStore();
+  const { theme, t } = useThemeStore();
 
   const querySearch = searchParams.get('search') || '';
   const isNewAction = searchParams.get('action') === 'new';
@@ -196,13 +196,13 @@ export default function RegistryPage() {
       }`}>
         <div>
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-blue-500 mb-1">
-            <Database className="w-4 h-4" /> Official Cadastral Ledger • LIMITS
+            <Database className="w-4 h-4" /> {t('officialCadastralLedger')}
           </div>
           <h1 className={`text-3xl font-extrabold ${theme === 'light' ? 'text-slate-900' : 'text-white'}`}>
-            3D Property Registry
+            {t('propertyRegistryTitle')}
           </h1>
           <p className={`text-sm mt-1 ${theme === 'light' ? 'text-slate-600' : 'text-slate-400'}`}>
-            Master repository of all 18-digit volumetric 3D ULPIN entries and cadastral title records.
+            {t('propertyRegistryDesc')}
           </p>
         </div>
 
@@ -212,13 +212,13 @@ export default function RegistryPage() {
             onClick={() => setShowAddModal(true)}
             className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-emerald-500/25 transition-all cursor-pointer"
           >
-            <Plus className="w-4 h-4" /> + Add New Register
+            <Plus className="w-4 h-4" /> {t('addNewRegister')}
           </button>
           <button 
             onClick={() => navigate('/generate-ulpin')}
             className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-blue-500/25 transition-all cursor-pointer"
           >
-            <QrCode className="w-3.5 h-3.5" /> Generate 3D ULPIN
+            <QrCode className="w-3.5 h-3.5" /> {t('generate3DUlpin')}
           </button>
         </div>
       </div>
@@ -226,26 +226,29 @@ export default function RegistryPage() {
       {/* Filter and Search Bar */}
       <div className={`flex flex-col sm:flex-row gap-4 items-center justify-between p-4 rounded-2xl border ${cardBase}`}>
         <div className="flex gap-2 w-full sm:w-auto">
-          {(['All', 'Registered', 'Flagged', 'Pending'] as const).map(tab => (
-            <button
-              key={tab}
-              onClick={() => setFilter(tab)}
-              className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                filter === tab 
-                  ? 'bg-blue-600 text-white shadow-md' 
-                  : (theme === 'light' ? 'bg-slate-100 text-slate-600 hover:bg-slate-200' : 'bg-slate-800 text-slate-400 hover:text-white')
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
+          {(['All', 'Registered', 'Flagged', 'Pending'] as const).map(tab => {
+            const label = tab === 'All' ? t('allTab') : tab === 'Registered' ? t('registeredTab') : tab === 'Flagged' ? t('flaggedTab') : t('pendingTab');
+            return (
+              <button
+                key={tab}
+                onClick={() => setFilter(tab)}
+                className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  filter === tab 
+                    ? 'bg-blue-600 text-white shadow-md' 
+                    : (theme === 'light' ? 'bg-slate-100 text-slate-600 hover:bg-slate-200' : 'bg-slate-800 text-slate-400 hover:text-white')
+                }`}
+              >
+                {label}
+              </button>
+            );
+          })}
         </div>
 
         <div className="relative w-full sm:w-80">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input 
             type="text"
-            placeholder="Search by ULPIN, Owner, or Building..."
+            placeholder={t('searchRegistryPlaceholder')}
             value={search}
             onChange={e => handleSearchChange(e.target.value)}
             className={`w-full rounded-xl pl-9 pr-3 py-2 text-xs outline-none font-mono border transition-all ${
@@ -265,13 +268,13 @@ export default function RegistryPage() {
               theme === 'light' ? 'bg-slate-100 text-slate-600 border-slate-200' : 'bg-slate-950/60 text-slate-400 border-slate-800'
             }`}>
               <tr>
-                <th className="p-4">3D ULPIN Identifier</th>
-                <th className="p-4">Owner Name</th>
-                <th className="p-4">Building &amp; Unit</th>
-                <th className="p-4">Property Type</th>
-                <th className="p-4">Area (m²)</th>
-                <th className="p-4">Status</th>
-                <th className="p-4 text-right">Actions</th>
+                <th className="p-4">{t('thUlpin')}</th>
+                <th className="p-4">{t('thOwner')}</th>
+                <th className="p-4">{t('thBuildingUnit')}</th>
+                <th className="p-4">{t('thType')}</th>
+                <th className="p-4">{t('thArea')}</th>
+                <th className="p-4">{t('thStatus')}</th>
+                <th className="p-4 text-right">{t('thActions')}</th>
               </tr>
             </thead>
             <tbody className={`divide-y font-mono ${
@@ -348,10 +351,10 @@ export default function RegistryPage() {
               </div>
               <div>
                 <h2 className={`text-xl font-bold ${theme === 'light' ? 'text-slate-900' : 'text-white'}`}>
-                  Register New Property
+                  {t('registerNewPropertyModal')}
                 </h2>
                 <p className={`text-xs ${theme === 'light' ? 'text-slate-500' : 'text-slate-400'}`}>
-                  Add property record to LIMITS 3D Cadastral Ledger
+                  {t('registerNewPropertyDesc')}
                 </p>
               </div>
             </div>

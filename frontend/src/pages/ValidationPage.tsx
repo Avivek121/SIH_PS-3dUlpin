@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { apiClient } from '../api/client';
+import { useThemeStore } from '../store/themeStore';
 
 interface ValidationItem {
   id: string;
@@ -29,6 +30,7 @@ const DEFAULT_VALIDATION_DATA: ValidationItem[] = [
 ];
 
 export default function ValidationPage() {
+  const { t, theme } = useThemeStore();
   const [data, setData] = useState<ValidationItem[]>(DEFAULT_VALIDATION_DATA);
   const [filter, setFilter] = useState<'All' | 'Flagged' | 'Verified'>('All');
   const [search, setSearch] = useState('');
@@ -90,39 +92,42 @@ export default function ValidationPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-6">
         <div>
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-blue-400 mb-1">
-            <ShieldCheck className="w-4 h-4" /> AI Spatial Verification
+            <ShieldCheck className="w-4 h-4" /> {t('spatialValidationTitle')}
           </div>
-          <h1 className="text-3xl font-extrabold text-white">Property Spatial Validation</h1>
+          <h1 className="text-3xl font-extrabold text-white">{t('spatialValidationTitle')}</h1>
           <p className="text-slate-400 text-sm mt-1">
-            Compare physical 3D LiDAR scans and drone photogrammetry against official municipal cadastral records.
+            {t('spatialValidationDesc')}
           </p>
         </div>
 
         <button 
           onClick={handleRunValidation}
-          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-blue-500/25 transition-all self-start md:self-auto"
+          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-blue-500/25 transition-all self-start md:self-auto cursor-pointer"
         >
           <Play className={`w-3.5 h-3.5 ${isValidating ? 'animate-spin' : ''}`} /> 
-          {isValidating ? 'Running LiDAR Discrepancy Engine...' : 'Run Automated Scan Validation'}
+          {isValidating ? 'Running LiDAR Discrepancy Engine...' : t('revalidateAll')}
         </button>
       </div>
 
       {/* Filter and Search Bar */}
       <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-slate-900/80 p-4 rounded-2xl border border-slate-800">
         <div className="flex gap-2 w-full sm:w-auto">
-          {(['All', 'Flagged', 'Verified'] as const).map(tab => (
-            <button
-              key={tab}
-              onClick={() => setFilter(tab)}
-              className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                filter === tab 
-                  ? 'bg-blue-600 text-white shadow-md' 
-                  : 'bg-slate-800 text-slate-400 hover:text-white'
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
+          {(['All', 'Flagged', 'Verified'] as const).map(tab => {
+            const label = tab === 'All' ? t('allTab') : tab === 'Flagged' ? t('flaggedTab') : t('toleranceVerified');
+            return (
+              <button
+                key={tab}
+                onClick={() => setFilter(tab)}
+                className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  filter === tab 
+                    ? 'bg-blue-600 text-white shadow-md' 
+                    : 'bg-slate-800 text-slate-400 hover:text-white'
+                }`}
+              >
+                {label}
+              </button>
+            );
+          })}
         </div>
 
         <div className="relative w-full sm:w-72">

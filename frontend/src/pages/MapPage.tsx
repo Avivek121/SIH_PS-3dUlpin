@@ -9,6 +9,7 @@ import {
 import { ulpinApi } from '../api/ulpin';
 import { propertiesApi } from '../api/properties';
 import { useMapStore } from '../store/mapStore';
+import { useThemeStore } from '../store/themeStore';
 import CertificateModal from '../components/certificate/CertificateModal';
 
 interface BuildingData {
@@ -50,6 +51,7 @@ export default function MapPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
+  const { t, theme } = useThemeStore();
   
   const [selectedBuilding, setSelectedBuilding] = useState<BuildingData | null>(DEMO_BUILDINGS[2]); // Default B03
   const [selectedFloor, setSelectedFloor] = useState<number>(4);
@@ -449,16 +451,16 @@ export default function MapPage() {
       {/* Layer Controls Bar - Bottom */}
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 bg-slate-900/95 backdrop-blur-xl border border-slate-700/90 rounded-2xl px-6 py-3.5 flex items-center gap-5 shadow-2xl max-w-3xl overflow-x-auto">
         <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400 border-r border-slate-700 pr-4">
-          <Layers className="w-4 h-4 text-blue-400" /> Layers
+          <Layers className="w-4 h-4 text-blue-400" /> {t('layers', 'Layers')}
         </div>
         {[
-          { key: 'parcels', label: 'Parcels' },
-          { key: 'buildings', label: '3D Buildings' },
-          { key: 'floors', label: 'Floors' },
-          { key: 'units', label: 'Units' },
+          { key: 'parcels', label: t('parcelNumber', 'Parcels') },
+          { key: 'buildings', label: t('buildingId', '3D Buildings') },
+          { key: 'floors', label: t('floorLevel', 'Floors') },
+          { key: 'units', label: t('unitSpace', 'Units') },
           { key: 'lidar', label: 'LiDAR' },
-          { key: 'roads', label: 'Roads' },
-          { key: 'terrain', label: 'Terrain' },
+          { key: 'roads', label: t('roads', 'Roads') },
+          { key: 'terrain', label: t('terrain', 'Terrain') },
         ].map((item) => (
           <label key={item.key} className="flex items-center gap-2 cursor-pointer text-slate-300 hover:text-white transition-colors text-xs font-medium whitespace-nowrap">
             <input 
@@ -482,13 +484,13 @@ export default function MapPage() {
                 <ShieldCheck className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="font-bold text-slate-100 text-base">Property Space</h2>
+                <h2 className="font-bold text-slate-100 text-base">{t('propertySpace', 'Property Space')}</h2>
                 <span className="text-xs text-slate-400">SIH 2026 Verified Record</span>
               </div>
             </div>
             <button 
               onClick={() => setPanelOpen(false)} 
-              className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
+              className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -499,40 +501,40 @@ export default function MapPage() {
             {/* 3D ULPIN Code Header Card */}
             <div className="p-4 rounded-xl bg-gradient-to-br from-blue-950/60 to-slate-900 border border-blue-500/40 shadow-inner">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-blue-400">Official 3D ULPIN</span>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-blue-400">{t('official3DUlpin', 'Official 3D ULPIN')}</span>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                  VERIFIED
+                  {t('toleranceVerified', 'VERIFIED')}
                 </span>
               </div>
               <div className="text-base font-mono font-extrabold text-white tracking-wide break-all select-all bg-slate-950/80 p-2.5 rounded-lg border border-slate-800">
                 {activeULPIN}
               </div>
               <div className="mt-2.5 flex items-center justify-between text-xs text-slate-400">
-                <span>Format: State-City-Ward-Parcel-Bldg-Floor-Unit</span>
+                <span>{t('formatHint', 'Format: State-City-Ward-Parcel-Bldg-Floor-Unit')}</span>
               </div>
             </div>
 
             {/* Hierarchical Space Info */}
             <div className="space-y-3">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
-                <MapPin className="w-3.5 h-3.5 text-blue-400" /> Spatial Hierarchy
+                <MapPin className="w-3.5 h-3.5 text-blue-400" /> {t('spatialHierarchy', 'Spatial Hierarchy')}
               </h3>
               
               <div className="grid grid-cols-2 gap-2.5 text-xs">
                 <div className="p-3 bg-slate-800/60 rounded-xl border border-slate-700/60">
-                  <span className="text-slate-400 block mb-1">Building</span>
+                  <span className="text-slate-400 block mb-1">{t('buildingId', 'Building')}</span>
                   <span className="font-bold text-white text-sm">{selectedBuilding.name} ({selectedBuilding.building_id})</span>
                 </div>
                 <div className="p-3 bg-slate-800/60 rounded-xl border border-slate-700/60">
-                  <span className="text-slate-400 block mb-1">Parcel ID</span>
+                  <span className="text-slate-400 block mb-1">{t('parcelNumber', 'Parcel ID')}</span>
                   <span className="font-bold text-white text-sm">{selectedBuilding.parcel_id}</span>
                 </div>
                 <div className="p-3 bg-slate-800/60 rounded-xl border border-slate-700/60">
-                  <span className="text-slate-400 block mb-1">Selected Floor</span>
+                  <span className="text-slate-400 block mb-1">{t('floorLevel', 'Selected Floor')}</span>
                   <span className="font-bold text-blue-400 text-sm">Floor {selectedFloor} of {selectedBuilding.floors}</span>
                 </div>
                 <div className="p-3 bg-slate-800/60 rounded-xl border border-slate-700/60">
-                  <span className="text-slate-400 block mb-1">Unit Number</span>
+                  <span className="text-slate-400 block mb-1">{t('unitSpace', 'Unit Number')}</span>
                   <span className="font-bold text-emerald-400 text-sm">Unit {selectedUnit}</span>
                 </div>
               </div>
@@ -541,28 +543,28 @@ export default function MapPage() {
             {/* Property Details */}
             <div className="space-y-3">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
-                <Info className="w-3.5 h-3.5 text-blue-400" /> Ownership & Specifications
+                <Info className="w-3.5 h-3.5 text-blue-400" /> {t('ownershipSpecs', 'Ownership & Specifications')}
               </h3>
               <div className="bg-slate-800/40 p-4 rounded-xl border border-slate-700/60 space-y-2.5 text-xs">
                 <div className="flex justify-between py-1 border-b border-slate-700/40">
-                  <span className="text-slate-400">Owner Name</span>
+                  <span className="text-slate-400">{t('owner', 'Owner Name')}</span>
                   <span className="font-semibold text-white">Rajesh Kumar Patel</span>
                 </div>
                 <div className="flex justify-between py-1 border-b border-slate-700/40">
-                  <span className="text-slate-400">Property Type</span>
+                  <span className="text-slate-400">{t('propertyClass', 'Property Type')}</span>
                   <span className="font-semibold text-white">{selectedBuilding.type} Space</span>
                 </div>
                 <div className="flex justify-between py-1 border-b border-slate-700/40">
-                  <span className="text-slate-400">Carpet Area</span>
+                  <span className="text-slate-400">{t('carpetArea', 'Carpet Area')}</span>
                   <span className="font-semibold text-white">125.0 m² (1,345 sq.ft)</span>
                 </div>
                 <div className="flex justify-between py-1 border-b border-slate-700/40">
-                  <span className="text-slate-400">Building Height</span>
+                  <span className="text-slate-400">{t('elevationHeight', 'Building Height')}</span>
                   <span className="font-semibold text-white">{selectedBuilding.height}m ({selectedBuilding.floors} Storeys)</span>
                 </div>
                 <div className="flex justify-between py-1">
-                  <span className="text-slate-400">Registration Status</span>
-                  <span className="font-bold text-emerald-400">Registered with Authority</span>
+                  <span className="text-slate-400">{t('thStatus', 'Registration Status')}</span>
+                  <span className="font-bold text-emerald-400">{t('registeredTab', 'Registered with Authority')}</span>
                 </div>
               </div>
             </div>
@@ -570,7 +572,7 @@ export default function MapPage() {
             {/* Validation & Discrepancy Analysis */}
             <div className="space-y-3">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
-                <Sparkles className="w-3.5 h-3.5 text-blue-400" /> AI Spatial Validation
+                <Sparkles className="w-3.5 h-3.5 text-blue-400" /> {t('spatialValidationTitle', 'AI Spatial Validation')}
               </h3>
               <div className="bg-emerald-950/30 border border-emerald-500/40 rounded-xl p-3.5 flex items-start gap-3">
                 <CheckCircle className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
@@ -588,22 +590,22 @@ export default function MapPage() {
           <div className="p-5 border-t border-slate-800 bg-slate-900 space-y-2.5">
             <button 
               onClick={() => navigate(`/explorer?building=${selectedBuilding.building_id}&floor=${selectedFloor}&unit=${selectedUnit}`)}
-              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold py-2.5 rounded-xl shadow-lg transition-all text-xs"
+              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold py-2.5 rounded-xl shadow-lg transition-all text-xs cursor-pointer"
             >
-              <Eye className="w-4 h-4" /> Open Vertical Building Explorer
+              <Eye className="w-4 h-4" /> {t('openExplorer', 'Open Vertical Building Explorer')}
             </button>
             <div className="flex gap-2">
               <button 
                 onClick={() => navigate('/registry-history')}
-                className="flex-1 flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium py-2 rounded-xl border border-slate-700 transition-colors text-xs"
+                className="flex-1 flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium py-2 rounded-xl border border-slate-700 transition-colors text-xs cursor-pointer"
               >
-                <FileText className="w-3.5 h-3.5 text-blue-400" /> Registry History
+                <FileText className="w-3.5 h-3.5 text-blue-400" /> {t('registryHistory', 'Registry History')}
               </button>
               <button 
                 onClick={() => setShowCertModal(true)}
-                className="flex-1 flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium py-2 rounded-xl border border-slate-700 transition-colors text-xs"
+                className="flex-1 flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium py-2 rounded-xl border border-slate-700 transition-colors text-xs cursor-pointer"
               >
-                <Download className="w-3.5 h-3.5 text-emerald-400" /> Certificate
+                <Download className="w-3.5 h-3.5 text-emerald-400" /> {t('viewCertificate', 'Certificate')}
               </button>
             </div>
           </div>
