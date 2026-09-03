@@ -1,6 +1,18 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api/v1';
+// Automatically detect best backend URL
+const getApiBaseUrl = () => {
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+  // In local browser environment, connect directly to FastAPI backend
+  if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+    return 'http://127.0.0.1:8000/api/v1';
+  }
+  return '/api/v1';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -26,8 +38,7 @@ apiClient.interceptors.response.use(
   (error) => {
     // Only redirect if explicitly unauthorized and not already on /login
     if (error.response && error.response.status === 401 && !window.location.pathname.includes('/login')) {
-      // Allow demo / guest fallback without jarring redirect
-      console.warn('API 401 Unauthorized - using authenticated session fallback');
+      console.warn('API 401 Unauthorized - session expired');
     }
     return Promise.reject(error);
   }
