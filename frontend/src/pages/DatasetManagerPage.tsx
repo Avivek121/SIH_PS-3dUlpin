@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   HardDrive, UploadCloud, ExternalLink, Play, CheckCircle2, Clock, 
   FileCode, Layers, Box, Satellite, Camera, RefreshCw, Sparkles, Download, Eye
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { apiClient } from '../api/client';
+import { useThemeStore } from '../store/themeStore';
 
 interface SampleDataset {
   id: string;
@@ -94,11 +96,39 @@ const OFFICIAL_SAMPLE_DATASETS: SampleDataset[] = [
 ];
 
 export default function DatasetManagerPage() {
+  const { t } = useThemeStore();
   const [datasets, setDatasets] = useState<SampleDataset[]>(OFFICIAL_SAMPLE_DATASETS);
   const [activeTab, setActiveTab] = useState<string>('all');
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    loadDatasets();
+  }, []);
+
+  const loadDatasets = async () => {
+    try {
+      const res = await apiClient.get('/datasets');
+      if (res.data && res.data.length > 0) {
+        const liveDs: SampleDataset[] = res.data.map((d: any, idx: number) => ({
+          id: d.id,
+          name: d.name,
+          category: d.dataset_type?.includes('lidar') ? 'lidar' : d.dataset_type?.includes('aerial') ? 'aerial' : 'building',
+          description: d.description || OFFICIAL_SAMPLE_DATASETS[idx % OFFICIAL_SAMPLE_DATASETS.length].description,
+          specs: `${d.file_count || 50} files • ${d.format?.toUpperCase() || 'LAS/OBJ'} • PostGIS Indexed`,
+          file_count: d.file_count || 50,
+          format: d.format?.toUpperCase() || 'LAZ / GLB',
+          source: d.metadata_json?.source || 'Agisoft Metashape Sample Data',
+          url: d.metadata_json?.url || 'https://www.agisoft.com/downloads/sample-data/',
+          status: d.status === 'processing' ? 'Processing' : 'Ready',
+          progress: d.status === 'processing' ? 68 : 100,
+          target_output: OFFICIAL_SAMPLE_DATASETS[idx % OFFICIAL_SAMPLE_DATASETS.length]?.target_output || '3D Cadastral Envelopes'
+        }));
+        setDatasets(liveDs);
+      }
+    } catch {}
+  };
 
   const handleSimulateUpload = () => {
     setUploadProgress(10);
@@ -114,8 +144,12 @@ export default function DatasetManagerPage() {
     }, 200);
   };
 
-  const handleRunProcessing = (id: string) => {
+  const handleRunProcessing = async (id: string) => {
     setDatasets(prev => prev.map(d => d.id === id ? { ...d, status: 'Processing', progress: 10 } : d));
+    try {
+      await apiClient.post(`/datasets/${id}/process`);
+    } catch {}
+
     let prog = 10;
     const intv = setInterval(() => {
       prog += 20;

@@ -4,6 +4,8 @@ import {
   Sparkles, Box, Satellite, HardDrive, AlertCircle, FileCode, Check
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { apiClient } from '../api/client';
+import { useThemeStore } from '../store/themeStore';
 
 interface PipelineStage {
   id: number;
@@ -20,8 +22,8 @@ const STAGES: PipelineStage[] = [
   { id: 3, name: 'LOD2 Building Footprint Extraction', description: 'Extracting 3D bounding geometry, roof eave lines, and height profiles.', progress: 100, status: 'Completed', metrics: '8 buildings • Mean height 18.5m' },
   { id: 4, name: 'Vertical Floor Plane Slicing', description: 'Detecting slab levels, floor heights, and window openings via RANSAC.', progress: 100, status: 'Completed', metrics: '52 floors sliced • 3.0m mean' },
   { id: 5, name: 'Volumetric Unit Partitioning', description: 'Matching municipal architectural floor plans to 3D spatial slices.', progress: 92, status: 'Running', metrics: '178 units • 14 pending verify' },
-  { id: 6, name: '18-Digit 3D ULPIN Encoding', description: 'Synthesizing State-City-Ward-Parcel-Bldg-Floor-Unit hierarchical identifiers.', progress: 85, status: 'Running', metrics: '164 codes generated' },
-  { id: 7, name: 'AI Spatial Discrepancy & Encroachment Flags', description: 'Comparing physical 3D mesh volume against approved building plans.', progress: 75, status: 'Running', metrics: '4 violations identified' },
+  { id: 6, name: '18-Digit 3D ULPIN Encoding', description: 'Synthesizing State-City-Ward-Parcel-Bldg-Floor-Unit hierarchical identifiers.', progress: 85, status: 'Running', metrics: '179 codes generated' },
+  { id: 7, name: 'AI Spatial Discrepancy & Encroachment Flags', description: 'Comparing physical 3D mesh volume against approved building plans.', progress: 75, status: 'Running', metrics: '6 violations identified' },
 ];
 
 const MOCK_LOGS = [
@@ -38,10 +40,38 @@ const MOCK_LOGS = [
 ];
 
 export default function AIProcessingPage() {
+  const { t } = useThemeStore();
   const [stages, setStages] = useState<PipelineStage[]>(STAGES);
   const [logs, setLogs] = useState<string[]>(MOCK_LOGS);
   const [isRunning, setIsRunning] = useState<boolean>(true);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    loadBackendStats();
+  }, []);
+
+  const loadBackendStats = async () => {
+    try {
+      const res = await apiClient.get('/dashboard/statistics');
+      if (res.data) {
+        setStages(prev => prev.map(s => {
+          if (s.id === 3 && res.data.total_buildings) {
+            return { ...s, metrics: `${res.data.total_buildings} buildings • Mean height 18.5m` };
+          }
+          if (s.id === 5 && res.data.total_units) {
+            return { ...s, metrics: `${res.data.total_units} units in PostgreSQL` };
+          }
+          if (s.id === 6 && res.data.total_ulpins) {
+            return { ...s, metrics: `${res.data.total_ulpins} ULPINs synchronized` };
+          }
+          if (s.id === 7 && res.data.flagged_count) {
+            return { ...s, metrics: `${res.data.flagged_count} violations identified` };
+          }
+          return s;
+        }));
+      }
+    } catch {}
+  };
 
   // Simulated live log append
   useEffect(() => {

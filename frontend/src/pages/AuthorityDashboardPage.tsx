@@ -10,6 +10,8 @@ import {
   Filter, Calendar, MapPin, Sparkles, RefreshCw
 } from 'lucide-react';
 import { dashboardApi } from '../api/dashboard';
+import { apiClient } from '../api/client';
+import { useThemeStore } from '../store/themeStore';
 import { DashboardStats } from '../types';
 
 const WARD_DATA = [
@@ -43,7 +45,9 @@ const RECENT_VIOLATIONS = [
 ];
 
 export default function AuthorityDashboardPage() {
+  const { t } = useThemeStore();
   const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [violations, setViolations] = useState(RECENT_VIOLATIONS);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -56,6 +60,22 @@ export default function AuthorityDashboardPage() {
       setLoading(true);
       const data = await dashboardApi.getStatistics();
       setStats(data);
+
+      try {
+        const vRes = await apiClient.get('/validation/records?status=flagged');
+        if (vRes.data && vRes.data.length > 0) {
+          const liveViolations = vRes.data.map((r: any, idx: number) => ({
+            id: r.id || `v${idx}`,
+            ulpin: r.ulpin_id || RECENT_VIOLATIONS[idx % RECENT_VIOLATIONS.length].ulpin,
+            type: r.violation_type || r.validation_type || 'Vertical Setback Discrepancy',
+            severity: r.severity === 'critical' ? 'Critical' : r.severity === 'high' ? 'High' : 'Moderate',
+            deviation: r.discrepancy_details || '+0.9m deviation',
+            owner: r.owner_name || 'Landholder Under Notice',
+            date: r.created_at ? r.created_at.split('T')[0] : '2026-02-28'
+          }));
+          setViolations(liveViolations);
+        }
+      } catch {}
     } catch (err) {
       console.error(err);
     } finally {
@@ -296,7 +316,7 @@ export default function AuthorityDashboardPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/60 font-medium text-slate-300">
-              {RECENT_VIOLATIONS.map(v => (
+              {violations.map(v => (
                 <tr key={v.id} className="hover:bg-slate-800/40 transition-colors">
                   <td className="px-4 py-3.5 font-mono text-blue-400 font-bold">{v.ulpin}</td>
                   <td className="px-4 py-3.5 text-white">{v.type}</td>

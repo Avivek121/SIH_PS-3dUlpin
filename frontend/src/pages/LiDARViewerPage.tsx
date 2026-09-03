@@ -2,16 +2,33 @@ import React, { useState, useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { 
   Glasses, Sliders, RotateCcw, Box, Compass, Eye, Download, 
-  Layers, Sparkles, Activity, ShieldCheck, Info
+  Layers, Sparkles, Activity, ShieldCheck, Info, Building2
 } from 'lucide-react';
+import { apiClient } from '../api/client';
+import { useThemeStore } from '../store/themeStore';
 
 export default function LiDARViewerPage() {
+  const { t } = useThemeStore();
   const containerRef = useRef<HTMLDivElement>(null);
   const [pointSize, setPointSize] = useState<number>(1.2);
   const [colorMode, setColorMode] = useState<'elevation' | 'intensity' | 'classification'>('elevation');
   const [showBoundingBox, setShowBoundingBox] = useState<boolean>(true);
   const [showTrajectory, setShowTrajectory] = useState<boolean>(true);
   const [pointCount, setPointCount] = useState<number>(35000);
+  const [buildings, setBuildings] = useState<any[]>([]);
+
+  useEffect(() => {
+    loadBuildings();
+  }, []);
+
+  const loadBuildings = async () => {
+    try {
+      const res = await apiClient.get('/properties/buildings');
+      if (res.data && res.data.length > 0) {
+        setBuildings(res.data);
+      }
+    } catch {}
+  };
 
   useEffect(() => {
     if (!containerRef.current) return;
