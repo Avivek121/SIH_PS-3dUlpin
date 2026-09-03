@@ -92,32 +92,48 @@ export default function Sidebar() {
   };
 
   return (
-    <div className={`${theme === 'light' ? 'bg-slate-900 text-white' : 'bg-slate-900 text-white'} h-full transition-all duration-300 flex flex-col ${collapsed ? 'w-20' : 'w-64'} border-r border-slate-800 relative z-40`}>
+    <div className={`${
+      theme === 'light' 
+        ? 'bg-white/95 text-slate-800 border-r border-slate-200/90 shadow-sm' 
+        : 'bg-slate-900/90 text-slate-100 border-r border-slate-800'
+    } h-full transition-all duration-300 flex flex-col ${collapsed ? 'w-20' : 'w-64'} relative z-40 backdrop-blur-md`}>
       {/* Brand Header: In place of 3D ULPIN -> LIMITS */}
-      <div className="flex items-center justify-between p-4 border-b border-slate-800 h-16">
+      <div className={`flex items-center justify-between p-4 border-b h-16 ${
+        theme === 'light' ? 'border-slate-200' : 'border-slate-800'
+      }`}>
         <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
           <div className="p-1.5 bg-cyan-500/20 text-cyan-400 rounded-lg border border-cyan-500/40 shadow-inner">
             <Box className="w-6 h-6 flex-shrink-0" />
           </div>
           {!collapsed && (
             <div>
-              <span className="font-black text-lg tracking-widest bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-300">
+              <span className="font-black text-lg tracking-widest bg-clip-text text-transparent bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-500">
                 LIMITS
               </span>
-              <span className="block text-[10px] text-slate-400 font-medium">{t('systemSubtitle')}</span>
+              <span className={`block text-[10px] font-medium ${
+                theme === 'light' ? 'text-slate-500' : 'text-slate-400'
+              }`}>{t('systemSubtitle')}</span>
             </div>
           )}
         </div>
       </div>
 
       {/* Persistent Left-Side ULPIN Search Bar */}
-      <div className="p-3 border-b border-slate-800 relative" ref={searchRef}>
-        <div className="relative flex items-center bg-slate-800/90 rounded-xl border border-slate-700/70 focus-within:border-blue-500 transition-colors">
+      <div className={`p-3 border-b relative ${
+        theme === 'light' ? 'border-slate-200' : 'border-slate-800'
+      }`} ref={searchRef}>
+        <div className={`relative flex items-center rounded-xl border transition-colors ${
+          theme === 'light' 
+            ? 'bg-slate-100/90 border-slate-300 focus-within:border-blue-500 focus-within:bg-white' 
+            : 'bg-slate-800/90 border-slate-700/70 focus-within:border-cyan-400'
+        }`}>
           <Search className="w-4 h-4 text-slate-400 absolute left-3 pointer-events-none" />
           <input 
             type="text" 
             placeholder={collapsed ? "" : "Search ULPIN, Owner, ID..."}
-            className="bg-transparent border-none outline-none text-xs py-2.5 pl-9 pr-8 w-full text-white placeholder-slate-400 font-mono"
+            className={`bg-transparent border-none outline-none text-xs py-2.5 pl-9 pr-8 w-full font-mono ${
+              theme === 'light' ? 'text-slate-900 placeholder-slate-400' : 'text-white placeholder-slate-400'
+            }`}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onFocus={() => { if (searchResults.length > 0) setShowDropdown(true); }}
@@ -174,8 +190,8 @@ export default function Sidebar() {
               className={({ isActive }) => 
                 `flex items-center gap-3 px-3 py-2 rounded-xl transition-all ${
                   isActive 
-                    ? 'bg-blue-600 text-white font-semibold shadow-md shadow-blue-600/30' 
-                    : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                    ? 'bg-gradient-to-r from-blue-600 to-sky-500 text-white font-bold shadow-md shadow-sky-500/20' 
+                    : (theme === 'light' ? 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white')
                 }`
               }
               title={collapsed ? t(item.key) : ''}
@@ -188,18 +204,30 @@ export default function Sidebar() {
       </div>
 
       {/* Footer / System Online Badge */}
-      <div className="p-3 border-t border-slate-800 space-y-2 bg-slate-950/40">
-        <div className="flex items-center justify-between p-2 bg-gradient-to-r from-emerald-950/40 to-slate-900 rounded-xl border border-emerald-500/30 text-xs">
+      <div className={`p-3 border-t space-y-2 ${
+        theme === 'light' ? 'border-slate-200 bg-slate-50/50' : 'border-slate-800 bg-slate-950/40'
+      }`}>
+        <div className={`flex items-center justify-between p-2 rounded-xl border text-xs ${
+          theme === 'light' 
+            ? 'bg-emerald-50 border-emerald-200 text-emerald-700' 
+            : 'bg-gradient-to-r from-emerald-950/40 to-slate-900 border-emerald-500/30'
+        }`}>
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-            {!collapsed && <span className="font-bold text-emerald-300 text-[11px]">{t('systemActive')}</span>}
+            {!collapsed && <span className={`font-bold text-[11px] ${
+              theme === 'light' ? 'text-emerald-700' : 'text-emerald-300'
+            }`}>{t('systemActive')}</span>}
           </div>
-          {!collapsed && <span className="text-[10px] text-slate-400 font-mono">EPSG:32645</span>}
+          {!collapsed && <span className={`text-[10px] font-mono ${
+            theme === 'light' ? 'text-slate-500' : 'text-slate-400'
+          }`}>EPSG:32645</span>}
         </div>
 
         <button 
           onClick={() => { logout(); navigate('/login'); }}
-          className="flex items-center gap-2 px-3 py-2 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white w-full transition-colors text-xs cursor-pointer"
+          className={`flex items-center gap-2 px-3 py-2 rounded-xl w-full transition-colors text-xs cursor-pointer ${
+            theme === 'light' ? 'text-slate-500 hover:bg-slate-200 hover:text-slate-900' : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+          }`}
         >
           <LogOut className="w-4 h-4 flex-shrink-0" />
           {!collapsed && <span>{t('signOut')}</span>}

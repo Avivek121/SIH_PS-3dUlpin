@@ -4,6 +4,7 @@ import Sidebar from './Sidebar';
 import TopBar from './TopBar';
 import { useThemeStore } from '../../store/themeStore';
 import { ChevronLeft, ChevronRight, MapPin, Eye } from 'lucide-react';
+import bgModernFacade from '../../assets/bg-modern-facade.jpg';
 import bgGoogleEarth from '../../assets/bg-google-earth.jpg';
 import bgCityStadium from '../../assets/bg-city-stadium.jpg';
 import bgCityNova from '../../assets/bg-city-nova.jpg';
@@ -12,6 +13,7 @@ import bgGisCadastral from '../../assets/bg-gis-cadastral.jpg';
 import heroBg from '../../assets/hero-bg.webp';
 
 const DASHBOARD_BACKGROUNDS = [
+  { url: bgModernFacade, name: 'Modern Architectural High-Rise Facade' },
   { url: bgGoogleEarth, name: 'Google Earth 3D Photogrammetry' },
   { url: bgCityStadium, name: '3D City & Stadium Complex' },
   { url: bgCityNova, name: 'Futuristic High-Rise Aerial (NOVA)' },
@@ -47,7 +49,7 @@ export default function DashboardLayout() {
 
   return (
     <div className={`flex h-screen w-screen overflow-hidden ${
-      theme === 'light' ? 'bg-slate-100 text-slate-800' : 'bg-slate-950 text-slate-100'
+      theme === 'light' ? 'bg-slate-100 text-slate-800' : 'bg-slate-900 text-slate-100'
     } font-sans relative transition-colors duration-300`}>
       {/* ── Dynamic Sliding 3D City & Google Earth Background Carousel ── */}
       {!isDedicated3DPage && (
@@ -61,16 +63,16 @@ export default function DashboardLayout() {
                 style={{
                   backgroundImage: `url(${bg.url})`,
                   transform: `translateX(${offset * 100}%)`,
-                  opacity: Math.abs(offset) > 1 ? 0 : (theme === 'light' ? 0.35 : 0.45),
+                  opacity: Math.abs(offset) > 1 ? 0 : (theme === 'light' ? 0.55 : 0.65),
                 }}
               />
             );
           })}
-          {/* Subtle Vignette & Atmospheric Contrast Overlay */}
+          {/* Lighter, Airier Contrast Overlay so image & cards look clean */}
           <div className={`absolute inset-0 ${
             theme === 'light'
-              ? 'bg-gradient-to-b from-slate-100/80 via-slate-100/90 to-slate-200/95 backdrop-blur-[2px]'
-              : 'bg-gradient-to-b from-slate-950/75 via-slate-950/80 to-slate-950/90 backdrop-blur-[1.5px]'
+              ? 'bg-gradient-to-b from-slate-100/60 via-slate-100/75 to-slate-200/85 backdrop-blur-[1px]'
+              : 'bg-gradient-to-b from-slate-900/40 via-slate-900/55 to-slate-950/70 backdrop-blur-[1px]'
           }`} />
         </div>
       )}

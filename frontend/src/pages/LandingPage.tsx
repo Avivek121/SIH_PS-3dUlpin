@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, MapPin } from 'lucide-react';
+import bgModernFacade from '../assets/bg-modern-facade.jpg';
 import bgCityStadium from '../assets/bg-city-stadium.jpg';
 import bgGoogleEarth from '../assets/bg-google-earth.jpg';
 import bgCityNova from '../assets/bg-city-nova.jpg';
@@ -9,6 +10,7 @@ import heroBg from '../assets/hero-bg.webp';
 import bgGisCadastral from '../assets/bg-gis-cadastral.jpg';
 
 const backgrounds = [
+  { url: bgModernFacade, name: 'Modern Architectural High-Rise Facade' },
   { url: bgCityStadium, name: '3D City & Stadium Complex' },
   { url: bgGoogleEarth, name: 'Google Earth 3D Photogrammetry' },
   { url: bgCityNova, name: 'Futuristic High-Rise Aerial' },

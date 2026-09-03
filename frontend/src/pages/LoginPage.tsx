@@ -4,6 +4,7 @@ import { useAuthStore } from '../store/authStore';
 import { authApi } from '../api/auth';
 import { Smartphone, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import userAvatar from '../assets/user-avatar.png';
+import bgModernFacade from '../assets/bg-modern-facade.jpg';
 import bgCityStadium from '../assets/bg-city-stadium.jpg';
 import bgGoogleEarth from '../assets/bg-google-earth.jpg';
 import bgCityNova from '../assets/bg-city-nova.jpg';
@@ -12,6 +13,7 @@ import heroBg from '../assets/hero-bg.webp';
 import PhoneOTP from '../components/auth/PhoneOTP';
 
 const backgrounds = [
+  { url: bgModernFacade, name: 'Modern Architectural High-Rise Facade' },
   { url: bgCityStadium, name: '3D City & Stadium Complex' },
   { url: bgGoogleEarth, name: 'Google Earth 3D Photogrammetry' },
   { url: bgCityNova, name: 'Futuristic High-Rise Aerial' },

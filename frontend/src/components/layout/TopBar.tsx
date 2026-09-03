@@ -125,18 +125,82 @@ export default function TopBar() {
         <span className="text-blue-500 font-bold">{currentTitle}</span>
       </div>
 
+      {/* ── Global Central ULPIN Search Bar ── */}
+      <div className="relative flex-1 max-w-lg" ref={searchRef}>
+        <form onSubmit={handleSearchSubmit} className="relative flex items-center">
+          <Search className="w-4 h-4 text-cyan-400 absolute left-3.5 pointer-events-none" />
+          <input
+            type="text"
+            placeholder="Search 18-digit ULPIN, Owner, Building, Parcel (e.g. OD-BBSR-W12... or B03)..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onFocus={() => { if (searchResults.length > 0) setShowSearchDropdown(true); }}
+            className="w-full rounded-full border border-slate-700 bg-slate-950/80 px-10 py-2 text-xs text-white placeholder-slate-400 font-mono shadow-inner outline-none transition-all focus:border-cyan-500 focus:bg-slate-900 focus:shadow-[0_0_15px_rgba(6,182,212,0.2)]"
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => { setSearchQuery(''); setSearchResults([]); setShowSearchDropdown(false); }}
+              className="absolute right-3 text-slate-500 hover:text-white text-xs cursor-pointer"
+            >
+              ✕
+            </button>
+          )}
+        </form>
+
+        {/* Live Search Results Dropdown */}
+        {showSearchDropdown && (
+          <div className="absolute top-full left-0 right-0 mt-2 bg-slate-900 border border-cyan-500/40 rounded-2xl shadow-2xl overflow-hidden z-50 max-h-96 overflow-y-auto custom-scrollbar">
+            <div className="p-2.5 border-b border-slate-800 text-[11px] font-bold uppercase tracking-wider text-slate-400 flex justify-between items-center bg-slate-950/80">
+              <span className="text-cyan-400">PostgreSQL Search Results ({searchResults.length})</span>
+              <span className="text-[10px] text-slate-500 font-mono">Press Enter to View Map</span>
+            </div>
+
+            {isSearching ? (
+              <div className="p-6 text-center text-xs text-slate-400 font-mono">
+                Searching PostgreSQL Database...
+              </div>
+            ) : searchResults.length === 0 ? (
+              <div className="p-6 text-center text-xs text-slate-400">
+                No properties matching &ldquo;{searchQuery}&rdquo;. Try searching <strong className="text-cyan-400 font-mono">OD</strong>, <strong className="text-cyan-400 font-mono">P001</strong>, or <strong className="text-cyan-400 font-mono">B01</strong>.
+              </div>
+            ) : (
+              <div className="divide-y divide-slate-800/60">
+                {searchResults.map((r) => (
+                  <div
+                    key={r.ulpin_code}
+                    onClick={() => handleSelectSearch(r)}
+                    className="p-3 hover:bg-cyan-950/30 cursor-pointer transition-colors flex items-center justify-between group"
+                  >
+                    <div className="space-y-0.5">
+                      <div className="text-xs font-mono font-bold text-cyan-300 group-hover:text-cyan-200">
+                        {r.ulpin_code}
+                      </div>
+                      <div className="text-[11px] text-slate-300 flex items-center gap-2">
+                        <span>👤 {r.owner_name || 'Registered Owner'}</span>
+                        <span>•</span>
+                        <span>🏢 Building {r.building_id || 'B01'}</span>
+                        {r.unit_number && <span>• Unit {r.unit_number}</span>}
+                      </div>
+                      {r.address && (
+                        <div className="text-[10px] text-slate-400">
+                          📍 {r.address}
+                        </div>
+                      )}
+                    </div>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-blue-950/80 text-blue-300 border border-blue-500/30 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                      3D Map ↗
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
       {/* Right Tools & Profile */}
       <div className="flex items-center gap-3">
-        {/* + Add New Register Button */}
-        <button
-          onClick={() => navigate('/registry?action=new')}
-          className="flex items-center gap-1.5 px-3.5 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-full text-xs font-bold shadow-md shadow-emerald-500/25 transition-all cursor-pointer"
-          title="Register New Property in LIMITS Ledger"
-        >
-          <span>{t('addNewRegister')}</span>
-        </button>
-
-        {/* PostgreSQL Database Clickable Badge */}
         {/* PostgreSQL Database Clickable Badge */}
         <button
           onClick={() => navigate('/database')}
