@@ -9,25 +9,33 @@ import {
 import { ulpinApi } from '../../api/ulpin';
 import { ULPINSearchResult } from '../../types';
 import { useAuthStore } from '../../store/authStore';
+import { useThemeStore } from '../../store/themeStore';
 
-const navItems = [
-  { name: 'Home', path: '/', icon: Home },
-  { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-  { name: 'Database Explorer', path: '/database', icon: Database },
-  { name: '3D GIS Map', path: '/map', icon: Map },
-  { name: 'Vertical Explorer', path: '/explorer', icon: Layers },
-  { name: 'Generate ULPIN', path: '/generate-ulpin', icon: FileDigit },
-  { name: 'Property Registry', path: '/registry', icon: Database },
-  { name: 'Registry History', path: '/registry-history', icon: History },
-  { name: 'Validation', path: '/validation', icon: CheckCircle },
-  { name: 'Change Detection', path: '/change-detection', icon: Eye },
-  { name: 'Flagged Properties', path: '/flagged', icon: AlertTriangle },
-  { name: 'Dataset Manager', path: '/datasets', icon: HardDrive },
-  { name: 'AI Processing', path: '/ai-processing', icon: Brain },
-  { name: 'Authority Dashboard', path: '/authority', icon: LayoutDashboard },
-  { name: 'LiDAR Viewer', path: '/lidar', icon: Glasses },
-  { name: 'AR / VR Mode', path: '/ar-vr', icon: Sparkles },
-  { name: 'Settings', path: '/settings', icon: Settings },
+interface NavItemDef {
+  key: string;
+  name: string;
+  path: string;
+  icon: any;
+}
+
+const navItems: NavItemDef[] = [
+  { key: 'home', name: 'Home', path: '/', icon: Home },
+  { key: 'dashboard', name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+  { key: 'databaseExplorer', name: 'Database Explorer', path: '/database', icon: Database },
+  { key: 'map3d', name: '3D GIS Map', path: '/map', icon: Map },
+  { key: 'verticalExplorer', name: 'Vertical Explorer', path: '/explorer', icon: Layers },
+  { key: 'generateUlpin', name: 'Generate ULPIN', path: '/generate-ulpin', icon: FileDigit },
+  { key: 'propertyRegistry', name: 'Property Registry', path: '/registry', icon: Database },
+  { key: 'registryHistory', name: 'Registry History', path: '/registry-history', icon: History },
+  { key: 'validation', name: 'Validation', path: '/validation', icon: CheckCircle },
+  { key: 'changeDetection', name: 'Change Detection', path: '/change-detection', icon: Eye },
+  { key: 'flaggedProperties', name: 'Flagged Properties', path: '/flagged', icon: AlertTriangle },
+  { key: 'datasetManager', name: 'Dataset Manager', path: '/datasets', icon: HardDrive },
+  { key: 'aiProcessing', name: 'AI Processing', path: '/ai-processing', icon: Brain },
+  { key: 'authorityDashboard', name: 'Authority Dashboard', path: '/authority', icon: LayoutDashboard },
+  { key: 'lidarViewer', name: 'LiDAR Viewer', path: '/lidar', icon: Glasses },
+  { key: 'arVrMode', name: 'AR / VR Mode', path: '/ar-vr', icon: Sparkles },
+  { key: 'settings', name: 'Settings', path: '/settings', icon: Settings },
 ];
 
 export default function Sidebar() {
@@ -40,6 +48,7 @@ export default function Sidebar() {
   const searchRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { logout, user } = useAuthStore();
+  const { t, theme } = useThemeStore();
 
   // Debounced search
   useEffect(() => {
@@ -83,19 +92,19 @@ export default function Sidebar() {
   };
 
   return (
-    <div className={`bg-slate-900 text-white h-full transition-all duration-300 flex flex-col ${collapsed ? 'w-20' : 'w-64'} border-r border-slate-800 relative z-40`}>
-      {/* Brand Header */}
+    <div className={`${theme === 'light' ? 'bg-slate-900 text-white' : 'bg-slate-900 text-white'} h-full transition-all duration-300 flex flex-col ${collapsed ? 'w-20' : 'w-64'} border-r border-slate-800 relative z-40`}>
+      {/* Brand Header: In place of 3D ULPIN -> LIMITS */}
       <div className="flex items-center justify-between p-4 border-b border-slate-800 h-16">
         <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
-          <div className="p-1.5 bg-blue-600/20 text-blue-400 rounded-lg border border-blue-500/30">
+          <div className="p-1.5 bg-cyan-500/20 text-cyan-400 rounded-lg border border-cyan-500/40 shadow-inner">
             <Box className="w-6 h-6 flex-shrink-0" />
           </div>
           {!collapsed && (
             <div>
-              <span className="font-extrabold text-base tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-300">
-                3D ULPIN
+              <span className="font-black text-lg tracking-widest bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-300">
+                LIMITS
               </span>
-              <span className="block text-[10px] text-slate-400 font-medium">Vertical GIS System</span>
+              <span className="block text-[10px] text-slate-400 font-medium">{t('systemSubtitle')}</span>
             </div>
           )}
         </div>
@@ -169,10 +178,10 @@ export default function Sidebar() {
                     : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                 }`
               }
-              title={collapsed ? item.name : ''}
+              title={collapsed ? t(item.key) : ''}
             >
               <item.icon className="w-4 h-4 flex-shrink-0" />
-              {!collapsed && <span className="text-xs">{item.name}</span>}
+              {!collapsed && <span className="text-xs">{t(item.key)}</span>}
             </NavLink>
           ))}
         </div>
@@ -183,17 +192,17 @@ export default function Sidebar() {
         <div className="flex items-center justify-between p-2 bg-gradient-to-r from-emerald-950/40 to-slate-900 rounded-xl border border-emerald-500/30 text-xs">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-            {!collapsed && <span className="font-bold text-emerald-300 text-[11px]">SYSTEM ACTIVE</span>}
+            {!collapsed && <span className="font-bold text-emerald-300 text-[11px]">{t('systemActive')}</span>}
           </div>
           {!collapsed && <span className="text-[10px] text-slate-400 font-mono">EPSG:32645</span>}
         </div>
 
         <button 
           onClick={() => { logout(); navigate('/login'); }}
-          className="flex items-center gap-2 px-3 py-2 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white w-full transition-colors text-xs"
+          className="flex items-center gap-2 px-3 py-2 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white w-full transition-colors text-xs cursor-pointer"
         >
           <LogOut className="w-4 h-4 flex-shrink-0" />
-          {!collapsed && <span>Sign Out</span>}
+          {!collapsed && <span>{t('signOut')}</span>}
         </button>
       </div>
     </div>

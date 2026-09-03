@@ -269,7 +269,7 @@ export default function LoginPage() {
             Welcome Back
           </h1>
           <p className="mb-5 text-center text-xs text-gray-300">
-            Sign in to your authenticated 3D-ULPIN account
+            Sign in to your authenticated LIMITS GIS account
           </p>
 
           {/* Error Message Box */}

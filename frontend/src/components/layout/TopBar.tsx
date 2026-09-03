@@ -2,9 +2,11 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { 
   Bell, Search, User, LogOut, Settings, ShieldCheck, 
-  MapPin, CheckCircle2, AlertTriangle, ExternalLink, ChevronDown
+  MapPin, CheckCircle2, AlertTriangle, ExternalLink, ChevronDown,
+  Sun, Moon, Globe
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
+import { useThemeStore, Language } from '../../store/themeStore';
 import { ulpinApi } from '../../api/ulpin';
 import { ULPINSearchResult } from '../../types';
 
@@ -31,9 +33,11 @@ export default function TopBar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
+  const { theme, toggleTheme, language, setLanguage, t } = useThemeStore();
 
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showLangMenu, setShowLangMenu] = useState(false);
 
   // Global ULPIN Search State
   const [searchQuery, setSearchQuery] = useState('');
@@ -44,8 +48,9 @@ export default function TopBar() {
   const profileRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLDivElement>(null);
+  const langRef = useRef<HTMLDivElement>(null);
 
-  const currentTitle = ROUTE_NAMES[location.pathname] || '3D ULPIN System';
+  const currentTitle = ROUTE_NAMES[location.pathname] || 'LIMITS System';
 
   // Debounced search
   useEffect(() => {
@@ -84,6 +89,9 @@ export default function TopBar() {
       if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
         setShowSearchDropdown(false);
       }
+      if (langRef.current && !langRef.current.contains(e.target as Node)) {
+        setShowLangMenu(false);
+      }
     };
     document.addEventListener('mousedown', handleOutside);
     return () => document.removeEventListener('mousedown', handleOutside);
@@ -103,12 +111,18 @@ export default function TopBar() {
   };
 
   return (
-    <header className="h-16 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 flex items-center justify-between px-6 shrink-0 z-30 font-sans text-slate-100 gap-4">
+    <header className={`h-16 ${
+      theme === 'light' 
+        ? 'bg-white/95 text-slate-800 border-b border-slate-200/90 shadow-sm' 
+        : 'bg-slate-900/90 text-slate-100 border-b border-slate-800'
+    } backdrop-blur-md flex items-center justify-between px-6 shrink-0 z-30 font-sans gap-4 transition-colors duration-300`}>
       {/* Breadcrumb */}
       <div className="hidden md:flex items-center gap-2 text-xs shrink-0">
-        <span className="text-slate-400 font-medium">Bhubaneswar Smart City</span>
-        <span className="text-slate-600">/</span>
-        <span className="text-blue-400 font-bold">{currentTitle}</span>
+        <span className={theme === 'light' ? 'text-slate-500 font-medium' : 'text-slate-400 font-medium'}>
+          Bhubaneswar Smart City
+        </span>
+        <span className="text-slate-500">/</span>
+        <span className="text-blue-500 font-bold">{currentTitle}</span>
       </div>
 
       {/* ── Global Central ULPIN Search Bar ── */}
@@ -244,6 +258,72 @@ export default function TopBar() {
                   <span className="text-[10px] text-slate-500 font-mono">2h ago</span>
                 </div>
               </div>
+            </div>
+          )}
+        </div>
+
+        {/* ── Dark / Light Theme Mode Toggle Button ── */}
+        <button
+          onClick={toggleTheme}
+          title={theme === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
+          className={`p-2 rounded-xl border transition-all cursor-pointer flex items-center justify-center ${
+            theme === 'light'
+              ? 'bg-slate-100 text-amber-600 border-slate-300 hover:bg-slate-200 shadow-sm'
+              : 'bg-slate-800 text-amber-400 border-slate-700 hover:bg-slate-700 hover:text-white'
+          }`}
+        >
+          {theme === 'dark' ? (
+            <Sun className="w-4 h-4 text-amber-400 animate-pulse" />
+          ) : (
+            <Moon className="w-4 h-4 text-slate-700" />
+          )}
+        </button>
+
+        {/* ── Multilingual Language Selector (English / Hindi / Odia) ── */}
+        <div className="relative" ref={langRef}>
+          <button
+            onClick={() => setShowLangMenu(!showLangMenu)}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
+              theme === 'light'
+                ? 'bg-slate-100 text-slate-800 border-slate-300 hover:bg-slate-200'
+                : 'bg-slate-800 text-slate-200 border-slate-700 hover:bg-slate-700'
+            }`}
+            title="Change System Language"
+          >
+            <Globe className="w-3.5 h-3.5 text-cyan-400" />
+            <span className="uppercase font-mono font-bold text-[11px]">{language}</span>
+            <ChevronDown className="w-3 h-3 text-slate-400" />
+          </button>
+
+          {showLangMenu && (
+            <div className="absolute right-0 mt-2 w-36 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-1.5 z-50 animate-in fade-in zoom-in duration-200 text-xs space-y-0.5">
+              <button
+                onClick={() => { setLanguage('en'); setShowLangMenu(false); }}
+                className={`w-full flex items-center justify-between px-3 py-2 rounded-xl transition-colors cursor-pointer ${
+                  language === 'en' ? 'bg-cyan-500/20 text-cyan-300 font-bold' : 'text-slate-300 hover:bg-slate-800'
+                }`}
+              >
+                <span>English</span>
+                <span className="text-[10px] text-slate-500 font-mono">EN</span>
+              </button>
+              <button
+                onClick={() => { setLanguage('hi'); setShowLangMenu(false); }}
+                className={`w-full flex items-center justify-between px-3 py-2 rounded-xl transition-colors cursor-pointer ${
+                  language === 'hi' ? 'bg-cyan-500/20 text-cyan-300 font-bold' : 'text-slate-300 hover:bg-slate-800'
+                }`}
+              >
+                <span>हिन्दी</span>
+                <span className="text-[10px] text-slate-500 font-mono">HI</span>
+              </button>
+              <button
+                onClick={() => { setLanguage('or'); setShowLangMenu(false); }}
+                className={`w-full flex items-center justify-between px-3 py-2 rounded-xl transition-colors cursor-pointer ${
+                  language === 'or' ? 'bg-cyan-500/20 text-cyan-300 font-bold' : 'text-slate-300 hover:bg-slate-800'
+                }`}
+              >
+                <span>ଓଡ଼ିଆ</span>
+                <span className="text-[10px] text-slate-500 font-mono">OR</span>
+              </button>
             </div>
           )}
         </div>

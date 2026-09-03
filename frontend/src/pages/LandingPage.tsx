@@ -174,11 +174,11 @@ export default function LandingPage() {
 
       {/* ── Main Centered Content ── */}
       <div className="relative z-30 flex h-full w-full flex-col items-center justify-center px-4 text-center text-white">
-        <h1 className="hero-title mb-4 text-5xl font-black tracking-tight md:text-7xl drop-shadow-[0_10px_25px_rgba(0,0,0,0.8)]">
-          3D-ULPIN
+        <h1 className="hero-title mb-4 text-5xl font-black tracking-widest md:text-7xl drop-shadow-[0_10px_25px_rgba(0,0,0,0.8)] bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-blue-300 to-white">
+          LIMITS
         </h1>
         <p className="hero-subtitle mb-8 max-w-2xl text-base text-gray-200 sm:text-lg md:text-xl font-medium leading-relaxed drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)]">
-          Unique Land Parcel Identification Number — Smart Urban Planning with 3D<br className="hidden sm:inline" /> Cadastral Visualization
+          Land Information Management &amp; Intelligence Tracking System — Smart Urban Planning with 3D Cadastral Visualization
         </p>
 
         {/* Continue Button */}

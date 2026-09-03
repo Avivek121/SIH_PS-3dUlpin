@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import TopBar from './TopBar';
+import { useThemeStore } from '../../store/themeStore';
 import { ChevronLeft, ChevronRight, MapPin, Eye } from 'lucide-react';
 import bgGoogleEarth from '../../assets/bg-google-earth.jpg';
 import bgCityStadium from '../../assets/bg-city-stadium.jpg';
@@ -22,6 +23,7 @@ const DASHBOARD_BACKGROUNDS = [
 export default function DashboardLayout() {
   const [bgIndex, setBgIndex] = useState(0);
   const location = useLocation();
+  const { theme } = useThemeStore();
 
   // Don't show the background image on 3D Map or LiDAR pages where WebGL canvas needs pure black
   const isDedicated3DPage = location.pathname === '/map' || location.pathname === '/lidar';
@@ -44,7 +46,9 @@ export default function DashboardLayout() {
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-slate-950 text-slate-100 font-sans relative">
+    <div className={`flex h-screen w-screen overflow-hidden ${
+      theme === 'light' ? 'bg-slate-100 text-slate-800' : 'bg-slate-950 text-slate-100'
+    } font-sans relative transition-colors duration-300`}>
       {/* ── Dynamic Sliding 3D City & Google Earth Background Carousel ── */}
       {!isDedicated3DPage && (
         <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
@@ -57,13 +61,17 @@ export default function DashboardLayout() {
                 style={{
                   backgroundImage: `url(${bg.url})`,
                   transform: `translateX(${offset * 100}%)`,
-                  opacity: Math.abs(offset) > 1 ? 0 : 0.45,
+                  opacity: Math.abs(offset) > 1 ? 0 : (theme === 'light' ? 0.35 : 0.45),
                 }}
               />
             );
           })}
           {/* Subtle Vignette & Atmospheric Contrast Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/75 via-slate-950/80 to-slate-950/90 backdrop-blur-[1.5px]" />
+          <div className={`absolute inset-0 ${
+            theme === 'light'
+              ? 'bg-gradient-to-b from-slate-100/80 via-slate-100/90 to-slate-200/95 backdrop-blur-[2px]'
+              : 'bg-gradient-to-b from-slate-950/75 via-slate-950/80 to-slate-950/90 backdrop-blur-[1.5px]'
+          }`} />
         </div>
       )}
 
@@ -81,16 +89,24 @@ export default function DashboardLayout() {
 
           {/* ── Floating Background Switcher Pill Controls (Bottom Right) ── */}
           {!isDedicated3DPage && (
-            <div className="fixed bottom-4 right-6 z-40 flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/90 border border-slate-700/80 shadow-2xl backdrop-blur-xl text-xs font-mono">
+            <div className={`fixed bottom-4 right-6 z-40 flex items-center gap-2 px-3 py-1.5 rounded-full border shadow-2xl backdrop-blur-xl text-xs font-mono transition-all ${
+              theme === 'light'
+                ? 'bg-white/90 border-slate-300 text-slate-800 shadow-slate-300/50'
+                : 'bg-slate-900/90 border-slate-700/80 text-cyan-300 shadow-black/60'
+            }`}>
               <button
                 onClick={handlePrevBg}
                 title="Previous 3D Background"
-                className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded-full transition-colors cursor-pointer"
+                className={`p-1 rounded-full transition-colors cursor-pointer ${
+                  theme === 'light' ? 'text-slate-600 hover:text-black hover:bg-slate-200' : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                }`}
               >
                 <ChevronLeft className="w-3.5 h-3.5" />
               </button>
 
-              <div className="flex items-center gap-1.5 text-[11px] text-cyan-300 font-semibold px-1">
+              <div className={`flex items-center gap-1.5 text-[11px] font-semibold px-1 ${
+                theme === 'light' ? 'text-blue-600' : 'text-cyan-300'
+              }`}>
                 <MapPin className="w-3 h-3 text-cyan-400" />
                 <span className="max-w-[160px] truncate">{DASHBOARD_BACKGROUNDS[bgIndex].name}</span>
               </div>
@@ -98,19 +114,25 @@ export default function DashboardLayout() {
               <button
                 onClick={handleNextBg}
                 title="Next 3D Background"
-                className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded-full transition-colors cursor-pointer"
+                className={`p-1 rounded-full transition-colors cursor-pointer ${
+                  theme === 'light' ? 'text-slate-600 hover:text-black hover:bg-slate-200' : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                }`}
               >
                 <ChevronRight className="w-3.5 h-3.5" />
               </button>
 
               {/* Dot Indicators */}
-              <div className="flex items-center gap-1 pl-1 border-l border-slate-700/80">
+              <div className={`flex items-center gap-1 pl-1 border-l ${
+                theme === 'light' ? 'border-slate-300' : 'border-slate-700/80'
+              }`}>
                 {DASHBOARD_BACKGROUNDS.map((_, i) => (
                   <button
                     key={i}
                     onClick={() => setBgIndex(i)}
                     className={`h-1.5 rounded-full transition-all cursor-pointer ${
-                      bgIndex === i ? 'w-4 bg-cyan-400' : 'w-1.5 bg-slate-600 hover:bg-slate-400'
+                      bgIndex === i 
+                        ? (theme === 'light' ? 'w-4 bg-blue-600' : 'w-4 bg-cyan-400')
+                        : (theme === 'light' ? 'w-1.5 bg-slate-400 hover:bg-slate-600' : 'w-1.5 bg-slate-600 hover:bg-slate-400')
                     }`}
                   />
                 ))}
