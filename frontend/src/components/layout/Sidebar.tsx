@@ -185,7 +185,7 @@ export default function Sidebar() {
       <div className="flex-1 overflow-y-auto py-3 custom-scrollbar">
         <div className="space-y-1 px-2">
           {(() => {
-            const isOfficer = user?.role === 'admin' || user?.role === 'officer' || user?.email?.includes('officer') || user?.email?.includes('admin') || user?.email?.includes('vivek');
+            const isOfficer = user?.role === 'admin' || user?.role === 'officer' || user?.email === 'officer.bbsr@ulpin3d.gov.in' || user?.email === 'admin@ulpin3d.gov.in';
             return navItems.filter(item => !item.officerOnly || isOfficer).map((item) => (
             <NavLink
               key={item.name}

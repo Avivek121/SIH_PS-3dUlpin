@@ -33,8 +33,8 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 const OfficerRoute = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuthStore();
-  const isOfficer = user?.role === 'admin' || user?.role === 'officer' || user?.email?.includes('officer') || user?.email?.includes('admin') || user?.email?.includes('vivek');
-  if (!isOfficer) {
+  const isOfficerOrAdmin = user?.role === 'admin' || user?.role === 'officer' || user?.email === 'officer.bbsr@ulpin3d.gov.in' || user?.email === 'admin@ulpin3d.gov.in';
+  if (!isOfficerOrAdmin) {
     return <Navigate to="/dashboard" replace />;
   }
   return <>{children}</>;

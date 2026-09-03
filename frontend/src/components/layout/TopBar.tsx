@@ -203,7 +203,7 @@ export default function TopBar() {
       <div className="flex items-center gap-3">
         {/* PostgreSQL Database Clickable Badge (Officers Only) */}
         {(() => {
-          const isOfficer = user?.role === 'admin' || user?.role === 'officer' || user?.email?.includes('officer') || user?.email?.includes('admin') || user?.email?.includes('vivek');
+          const isOfficer = user?.role === 'admin' || user?.role === 'officer' || user?.email === 'officer.bbsr@ulpin3d.gov.in' || user?.email === 'admin@ulpin3d.gov.in';
           if (!isOfficer) return null;
           return (
             <button
