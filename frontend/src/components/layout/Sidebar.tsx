@@ -13,6 +13,7 @@ import { useAuthStore } from '../../store/authStore';
 const navItems = [
   { name: 'Home', path: '/', icon: Home },
   { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+  { name: 'Database Explorer', path: '/database', icon: Database },
   { name: '3D GIS Map', path: '/map', icon: Map },
   { name: 'Vertical Explorer', path: '/explorer', icon: Layers },
   { name: 'Generate ULPIN', path: '/generate-ulpin', icon: FileDigit },

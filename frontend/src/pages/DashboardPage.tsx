@@ -64,49 +64,6 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* ── Live Database & FastAPI Backend Connection Hub ── */}
-      <div className="p-5 rounded-2xl bg-gradient-to-r from-slate-900 via-blue-950/40 to-slate-900 border border-cyan-500/30 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
-            <ShieldCheck className="w-6 h-6" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-bold text-white">Full-Stack Live & Connected</span>
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-950/60 text-emerald-300 border border-emerald-500/30">POSTGRESQL 18 + FASTAPI</span>
-            </div>
-            <div className="text-xs text-slate-300 mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[11px]">
-              <span>🗄️ Database: <strong className="text-cyan-300">ulpin3d</strong> (5 Parcels, 8 Buildings, 178 Units)</span>
-              <span>•</span>
-              <span>⚡ API Host: <strong className="text-blue-300">127.0.0.1:8000</strong></span>
-              <span>•</span>
-              <span>📍 Latency: <strong className="text-emerald-400">&lt; 4ms</strong></span>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 shrink-0">
-          <a
-            href="http://localhost:8000/api/docs"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-4 py-2 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white rounded-xl text-xs font-bold shadow-lg shadow-blue-500/25 transition-all flex items-center gap-1.5 cursor-pointer"
-          >
-            <Eye className="w-3.5 h-3.5" />
-            <span>Open Swagger API Docs ↗</span>
-          </a>
-          <a
-            href="http://localhost:8000/api/redoc"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-semibold border border-slate-700 transition-colors"
-          >
-            ReDoc
-          </a>
-        </div>
-      </div>
-
       {/* KPI Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <div className="p-5 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-lg">

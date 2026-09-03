@@ -8,6 +8,7 @@ import { useAuthStore } from '../../store/authStore';
 
 const ROUTE_NAMES: Record<string, string> = {
   '/dashboard': 'Dashboard Overview',
+  '/database': 'PostgreSQL Database Explorer',
   '/map': '3D GIS Digital Twin Map',
   '/explorer': 'Vertical Building Explorer',
   '/generate-ulpin': 'Generate 3D ULPIN',
@@ -62,11 +63,15 @@ export default function TopBar() {
 
       {/* Right Tools & Profile */}
       <div className="flex items-center gap-3">
-        {/* PostgreSQL Database Status Badge */}
-        <div className="hidden lg:flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-emerald-950/40 to-slate-900 border border-emerald-500/40 rounded-full text-xs text-emerald-300 font-bold shadow-inner" title="PostgreSQL 18.6 connected to ulpin3d database">
+        {/* PostgreSQL Database Clickable Badge */}
+        <button
+          onClick={() => navigate('/database')}
+          className="hidden lg:flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-emerald-950/60 to-slate-900 hover:from-emerald-900/80 hover:to-slate-800 border border-emerald-500/40 rounded-full text-xs text-emerald-300 font-bold shadow-inner transition-all cursor-pointer"
+          title="Click to open PostgreSQL Database Explorer"
+        >
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span>🗄️ DB: POSTGRES (179 ULPINs)</span>
-        </div>
+          <span>🗄️ DB: POSTGRESQL (179 ULPINs)</span>
+        </button>
 
         {/* Backend Interactive Swagger API Docs Button */}
         <a 

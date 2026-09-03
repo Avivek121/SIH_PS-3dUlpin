@@ -19,6 +19,7 @@ import LiDARViewerPage from './pages/LiDARViewerPage';
 import ARVRViewerPage from './pages/ARVRViewerPage';
 import ProfilePage from './pages/ProfilePage';
 import SettingsPage from './pages/SettingsPage';
+import DatabasePage from './pages/DatabasePage';
 import NotFoundPage from './pages/NotFoundPage';
 import { useAuthStore } from './store/authStore';
 
@@ -54,6 +55,7 @@ function App() {
         <Route path="ar-vr" element={<ARVRViewerPage />} />
         <Route path="profile" element={<ProfilePage />} />
         <Route path="settings" element={<SettingsPage />} />
+        <Route path="database" element={<DatabasePage />} />
       </Route>
       
       <Route path="*" element={<NotFoundPage />} />

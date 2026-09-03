@@ -65,7 +65,7 @@ if os.path.exists(static_dir):
     app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 # Import routers
-from app.routers import auth, ulpin, properties, registry, validation, datasets, gis, dashboard
+from app.routers import auth, ulpin, properties, registry, validation, datasets, gis, dashboard, database
 
 # Create /api/v1 router
 api_v1 = APIRouter(prefix="/api/v1")
@@ -77,6 +77,7 @@ api_v1.include_router(validation.router, tags=["Validation"])
 api_v1.include_router(datasets.router, tags=["Datasets"])
 api_v1.include_router(gis.router, tags=["GIS"])
 api_v1.include_router(dashboard.router, tags=["Dashboard"])
+api_v1.include_router(database.router, tags=["Database"])
 
 app.include_router(api_v1)
 
