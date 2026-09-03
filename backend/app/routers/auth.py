@@ -20,6 +20,25 @@ import uuid
 router = APIRouter()
 
 
+@router.get("/users", summary="List All Registered Users")
+async def list_all_registered_users(db: AsyncSession = Depends(get_db)):
+    """Fetch all registered users from the PostgreSQL users table."""
+    result = await db.execute(select(User).order_by(User.created_at.desc()))
+    users = result.scalars().all()
+    return [
+        {
+            "id": str(u.id),
+            "email": u.email,
+            "full_name": u.full_name,
+            "phone": u.phone,
+            "role": u.role,
+            "is_active": u.is_active,
+            "created_at": u.created_at.isoformat() if u.created_at else None
+        }
+        for u in users
+    ]
+
+
 @router.post("/register")
 async def register(user_data: UserRegister, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(User).where(User.email == user_data.email))
@@ -31,10 +50,11 @@ async def register(user_data: UserRegister, db: AsyncSession = Depends(get_db)):
         password_hash=hash_password(user_data.password),
         full_name=user_data.full_name,
         phone=user_data.phone,
+        role="user",
         is_demo=False,
     )
     db.add(new_user)
-    await db.flush()
+    await db.commit()
     await db.refresh(new_user)
 
     access_token = create_access_token(subject=str(new_user.id), extra_claims={"role": new_user.role})
